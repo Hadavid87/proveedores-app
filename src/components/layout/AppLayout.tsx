@@ -72,13 +72,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div key={item.label} className="space-y-1">
               <button 
                 onClick={() => toggleGroup(item.label)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors text-[13px] font-bold tracking-wide ${
+                className={`w-full flex items-center justify-between text-left px-4 py-3 rounded-lg transition-colors text-[13px] font-bold tracking-wide ${
                   isGroupActive && !isOpen ? "bg-slate-200 text-[#0F172A]" : "text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 <div className="flex items-center space-x-3">
                   <item.icon className={`w-[18px] h-[18px] ${isGroupActive ? "text-[#0F172A]" : "text-slate-500"}`} />
-                  <span>{item.label}</span>
+                  <span className="text-left">{item.label}</span>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
               </button>
