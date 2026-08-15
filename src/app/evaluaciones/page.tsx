@@ -164,12 +164,12 @@ export default function EvaluacionesPage() {
             <TableHeader className="bg-[#0F172A]">
               <TableRow className="hover:bg-[#0F172A] border-none">
                 <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[18%]">Proveedor</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[12%]">Fecha Eval.</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-center w-[10%]">Puntaje</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[18%]">Estado</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[20%]">Plan de Mejora</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[11%]">Fecha Eval.</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-center w-[8%]">Puntaje</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[17%]">Estado</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[18%]">Plan de Mejora</TableHead>
                 <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[12%]">Vencimiento</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-right w-[10%]">Acciones</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-right w-[16%]">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
