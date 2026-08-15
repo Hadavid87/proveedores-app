@@ -160,7 +160,7 @@ export default function EvaluacionesPage() {
         </div>
         
         <div className="overflow-x-auto flex-1">
-          <Table className="table-fixed w-full">
+          <Table className="table-fixed w-full [&_td]:whitespace-normal [&_th]:whitespace-normal break-words">
             <TableHeader className="bg-[#0F172A]">
               <TableRow className="hover:bg-[#0F172A] border-none">
                 <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[20%]">Proveedor</TableHead>
@@ -190,7 +190,7 @@ export default function EvaluacionesPage() {
                       {evaluacion.estado}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-slate-600 text-[12px] py-4 max-w-[200px] truncate">
+                  <TableCell className="text-slate-600 text-[12px] py-4">
                     {evaluacion.puntuacion < 3.5 ? (
                       <span className="text-rose-600 font-medium" title={evaluacion.planMejora}>
                         {evaluacion.planMejora || "Requiere acciones"}
