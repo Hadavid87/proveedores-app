@@ -163,13 +163,13 @@ export default function EvaluacionesPage() {
           <Table className="table-fixed w-full [&_td]:whitespace-normal [&_th]:whitespace-normal break-words">
             <TableHeader className="bg-[#0F172A]">
               <TableRow className="hover:bg-[#0F172A] border-none">
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[20%]">Proveedor</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[18%]">Proveedor</TableHead>
                 <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[12%]">Fecha Eval.</TableHead>
                 <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-center w-[10%]">Puntaje</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[15%]">Estado</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[18%]">Estado</TableHead>
                 <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[20%]">Plan de Mejora</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[11%]">Vencimiento</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-right w-[12%]">Acciones</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[12%]">Vencimiento</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-right w-[10%]">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -186,7 +186,7 @@ export default function EvaluacionesPage() {
                     </span>
                   </TableCell>
                   <TableCell className="py-4">
-                    <Badge variant="outline" className={`${getStatusColor(evaluacion.estado)} px-2.5 py-0.5 text-[11px] font-bold border rounded-md shadow-sm`}>
+                    <Badge variant="outline" className={`${getStatusColor(evaluacion.estado)} px-2.5 py-1 text-[11px] font-bold border rounded-md shadow-sm whitespace-normal h-auto text-center leading-tight`}>
                       {evaluacion.estado}
                     </Badge>
                   </TableCell>
