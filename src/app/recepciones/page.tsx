@@ -59,7 +59,7 @@ export default function RecepcionesPage() {
     const order = pendingOrders.find(o => o.id === orderId);
     if (order) {
       const initialRowStates: Record<string, RowState> = {};
-      order.items.forEach(item => {
+      order.items.forEach((item: any) => {
         initialRowStates[item.prodId] = {
           lote: "",
           vencimiento: "",
@@ -174,13 +174,13 @@ export default function RecepcionesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentOrder.items.map((item) => {
+                {currentOrder.items.map((item: any) => {
                   const state = rowsState[item.prodId] || {};
                   const isReceived = state.isReceived;
                   
                   // Calculo de muestra dinámica basado en la cantidad que el usuario está escribiendo
                   const cantNumerica = parseInt(state.cantRecibida) || 0;
-                  const muestra = cantNumerica > 0 ? calculateAQL(cantNumerica).sampleSize : 0;
+                  const muestra = cantNumerica > 0 ? calculateAQL(cantNumerica).n : 0;
                   
                   // Alertas dinámicas
                   const isRanitidina = item.nombre.toLowerCase().includes("ranitidina");

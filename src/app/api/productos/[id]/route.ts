@@ -18,9 +18,10 @@ if (globalForPrisma.prisma) {
   if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
     
     // Check if exists and get file
     const prod = await prisma.producto.findUnique({ where: { id } });
@@ -41,9 +42,10 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
     const formData = await req.formData();
     
     // Parse fields
