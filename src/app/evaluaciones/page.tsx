@@ -160,16 +160,16 @@ export default function EvaluacionesPage() {
         </div>
         
         <div className="overflow-x-auto flex-1">
-          <Table>
+          <Table className="table-fixed w-full">
             <TableHeader className="bg-[#0F172A]">
               <TableRow className="hover:bg-[#0F172A] border-none">
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px]">Proveedor</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px]">Fecha Eval.</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-center">Puntaje</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px]">Estado</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px]">Plan de Mejora</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px]">Vencimiento</TableHead>
-                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-right">Acciones</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[20%]">Proveedor</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[12%]">Fecha Eval.</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-center w-[10%]">Puntaje</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[15%]">Estado</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[20%]">Plan de Mejora</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] w-[11%]">Vencimiento</TableHead>
+                <TableHead className="text-white font-heading font-semibold py-3.5 text-[13px] text-right w-[12%]">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
