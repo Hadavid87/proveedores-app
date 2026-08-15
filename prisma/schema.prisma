@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model Proveedor {
+  id              Int      @id @default(autoincrement())
+  nit             String   @unique @db.VarChar(20)
+  razonSocial     String   @map("razon_social") @db.VarChar(255)
+  emailLogistica  String   @map("email_logistica") @db.VarChar(150)
+  kamNombre       String?  @map("kam_nombre") @db.VarChar(150)
+  condicionPago   CondicionPago @default(CONTADO) @map("condicion_pago")
+  puntajeActual   Decimal  @default(5.00) @map("puntaje_actual") @db.Decimal(3, 2)
+  estado          EstadoProveedor @default(ACTIVO)
+  
+  productos       ProductoProveedor[]
+  ordenesCompra   OrdenCompra[]
+
+  @@map("proveedores")
+}
+
+enum CondicionPago {
+  CONTADO
+  CREDITO
+}
+
+enum EstadoProveedor {
+  ACTIVO
+  INACTIVO
+  SUSPENDIDO
+}
+
+model Producto {
+  id              Int      @id @default(autoincrement())
+  codigo          String   @unique
+  nombre          String
+  presentacion    String?
+  precioBase      Decimal  @map("precio_base") @db.Decimal(10, 2)
+  fechaVencimiento DateTime? @db.Date @map("fecha_vencimiento")
+  fichaTecnicaUrl String?  @map("ficha_tecnica_url")
+  
+  proveedores     ProductoProveedor[]
+  recepciones     RecepcionTecnica[]
+
+  @@map("productos")
+}
+
+model ProductoProveedor {
+  productoId   Int @map("producto_id")
+  proveedorId  Int @map("proveedor_id")
+  
+  producto     Producto  @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  proveedor    Proveedor @relation(fields: [proveedorId], references: [id], onDelete: Cascade)
+
+  @@id([productoId, proveedorId])
+  @@map("productos_proveedores")
+}
+
+model OrdenCompra {
+  id              Int      @id @default(autoincrement())
+  proveedorId     Int      @map("proveedor_id")
+  fechaEmision    DateTime @default(now()) @map("fecha_emision")
+  fechaEsperada   DateTime @map("fecha_esperada")
+  estado          EstadoOC @default(EN_TIEMPO)
+  
+  proveedor       Proveedor @relation(fields: [proveedorId], references: [id])
+  
+  @@map("ordenes_compra")
+}
+
+enum EstadoOC {
+  EN_TIEMPO
+  POR_VENCER
+  VENCIDA
+  RECIBIDA
+}
+
+model RecepcionTecnica {
+  id                   Int      @id @default(autoincrement())
+  ordenCompraId        Int      @map("orden_compra_id")
+  productoId           Int      @map("producto_id")
+  lote                 String   @db.VarChar(50)
+  cantidadRecibida     Int      @map("cantidad_recibida")
+  muestraAql           Int      @map("muestra_aql")
+  fechaVencimiento     DateTime @db.Date @map("fecha_vencimiento")
+  tieneCartaCompromiso Boolean  @default(false) @map("tiene_carta_compromiso")
+  cumpleInvima         Boolean  @map("cumple_invima")
+  dictamen             DictamenRecepcion
+  
+  producto             Producto @relation(fields: [productoId], references: [id])
+  
+  @@map("recepciones_tecnicas")
+}
+
+enum DictamenRecepcion {
+  APROBADO
+  RECHAZADO
+}
+
+model CapaTicket {
+  id          Int      @id @default(autoincrement())
+  proveedorId Int      @map("proveedor_id")
+  fechaGeneracion DateTime @default(now()) @map("fecha_generacion")
+  descripcion String   @db.Text
+  estado      String   @default("ABIERTO")
+
+  @@map("capa_tickets")
+}
