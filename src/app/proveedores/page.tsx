@@ -204,7 +204,7 @@ export default function ProveedoresPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Panel - Table */}
-        <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <div className={`${selectedProv ? 'xl:col-span-2' : 'xl:col-span-3'} bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col transition-all duration-300`}>
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white">
             <div className="relative w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -277,7 +277,7 @@ export default function ProveedoresPage() {
 
         {/* Right Panel - Details */}
         {selectedProv ? (
-          <div className="xl:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col">
+          <div className="xl:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col animate-in slide-in-from-right-4 duration-300">
             <div className="h-1.5 w-full bg-[#8B5CF6]" />
             <div className="p-6 flex-1 flex flex-col">
               <div className="flex justify-between items-start mb-5">
@@ -290,6 +290,9 @@ export default function ProveedoresPage() {
                   </button>
                   <button onClick={handleDelete} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors" title="Eliminar">
                     <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setSelectedProv(null as any)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors" title="Cerrar panel">
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
