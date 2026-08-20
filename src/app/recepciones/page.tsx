@@ -159,7 +159,7 @@ export default function RecepcionesPage() {
                   const state = rowsState[item.prodId] || { estado: "PENDIENTE" };
                   
                   return (
-                    <TableRow key={item.prodId} className={`border-b border-slate-100 transition-colors ${state.estado === 'ACEPTADO' ? 'bg-emerald-50/50' : state.estado === 'CUARENTENA' ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
+                    <TableRow key={item.prodId} className={`border-b border-slate-100 transition-colors ${state.estado === 'ACEPTADO' ? 'bg-emerald-50/50' : state.estado === 'CUARENTENA' ? 'bg-amber-50/50' : state.estado === 'RECHAZADO' ? 'bg-rose-50/50' : 'hover:bg-slate-50'}`}>
                       <TableCell className="p-2 border-r border-slate-100">
                         <div className="font-bold text-[12px] text-[#0F172A]">{item.nombre}</div>
                         {item.isLASA && (
@@ -180,6 +180,7 @@ export default function RecepcionesPage() {
                       <TableCell className="p-2 border-r border-slate-100 text-center">
                         {state.estado === "PENDIENTE" && <Badge variant="outline" className="text-slate-500">Pendiente</Badge>}
                         {state.estado === "CUARENTENA" && <Badge className="bg-amber-100 text-amber-700 border-amber-200">En Cuarentena</Badge>}
+                        {state.estado === "RECHAZADO" && <Badge className="bg-rose-100 text-rose-700 border-rose-200">Devuelto</Badge>}
                         {state.estado === "ACEPTADO" && <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Aceptado</Badge>}
                       </TableCell>
                       
@@ -192,6 +193,21 @@ export default function RecepcionesPage() {
                           >
                             Procesar
                           </Button>
+                        ) : state.estado === "CUARENTENA" ? (
+                          <div className="flex flex-col gap-1">
+                             <Button size="sm" variant="outline" className="h-6 text-[9px] border-emerald-500 text-emerald-600 hover:bg-emerald-50" onClick={() => {
+                               if (confirm("¿Marcar este ítem como resuelto y Aceptado?")) {
+                                  setRowsState(prev => ({ ...prev, [item.prodId]: { ...prev[item.prodId], estado: 'ACEPTADO' } }));
+                               }
+                             }}>Resolver</Button>
+                             <Button size="sm" variant="outline" className="h-6 text-[9px] border-rose-500 text-rose-600 hover:bg-rose-50" onClick={() => {
+                               if (confirm("¿Rechazar definitivamente este ítem (Devolución total)?")) {
+                                  setRowsState(prev => ({ ...prev, [item.prodId]: { ...prev[item.prodId], estado: 'RECHAZADO' } }));
+                               }
+                             }}>Rechazar</Button>
+                          </div>
+                        ) : state.estado === "RECHAZADO" ? (
+                           <span className="text-[10px] font-bold text-rose-500">DEVUELTO</span>
                         ) : (
                           <span className="text-[10px] font-bold text-slate-400">PROCESADO</span>
                         )}
