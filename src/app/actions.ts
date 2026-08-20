@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 // --- ORDENES DE COMPRA ---
 
 export async function getOrdenes() {
-  return await prisma.ordenCompra.findMany({
+  const data = await prisma.ordenCompra.findMany({
     include: {
       proveedor: true,
       items: {
@@ -15,6 +15,7 @@ export async function getOrdenes() {
     },
     orderBy: { fechaEmision: "desc" }
   });
+  return JSON.parse(JSON.stringify(data));
 }
 
 export async function createOrden(proveedorId: number, fechaEsperada: string, items: { prodId: string, cantidad: number, precio: number }[]) {
@@ -44,18 +45,19 @@ export async function createOrden(proveedorId: number, fechaEsperada: string, it
 }
 
 export async function getPendingOrders() {
-  return await prisma.ordenCompra.findMany({
+  const data = await prisma.ordenCompra.findMany({
     where: {
-      estado: { in: ["EMITIDA", "EN_TRANSITO", "EN_TIEMPO"] }
+      estado: { in: ["EMITIDA", "EN_TRANSITO"] }
     },
     include: {
       proveedor: true,
       items: {
-        include: { producto: true }
+        include: { producto: true, recepciones: true }
       }
     },
     orderBy: { fechaEmision: "asc" }
   });
+  return JSON.parse(JSON.stringify(data));
 }
 
 // --- RECEPCION TECNICA ---
@@ -129,19 +131,21 @@ export async function processRecepcionItem(
 
 // --- PROVEEDORES Y PRODUCTOS ---
 export async function getProveedores() {
-  return await prisma.proveedor.findMany({
+  const data = await prisma.proveedor.findMany({
     orderBy: { razonSocial: "asc" }
   });
+  return JSON.parse(JSON.stringify(data));
 }
 
 export async function getProductos() {
-  return await prisma.producto.findMany({
+  const data = await prisma.producto.findMany({
     include: {
       proveedores: {
         include: { proveedor: true }
       }
     }
   });
+  return JSON.parse(JSON.stringify(data));
 }
 
 // --- BASIC SEED FOR TESTING ---
