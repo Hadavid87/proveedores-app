@@ -150,7 +150,7 @@ export default function OrdenesPage() {
     setIsDetailOpen(true);
   };
 
-  const emitidas = orders.filter(o => o.estado === "EMITIDA" || o.estado === "EN_TIEMPO");
+  const emitidas = orders.filter(o => o.estado === "EN_TIEMPO");
   const enTransito = orders.filter(o => o.estado === "EN_TRANSITO");
   const recibidas = orders.filter(o => o.estado === "RECIBIDA");
 

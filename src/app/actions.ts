@@ -32,7 +32,7 @@ export async function createOrden(proveedorId: number, fechaEsperada: string, it
     data: {
       proveedorId,
       fechaEsperada: new Date(fechaEsperada),
-      estado: "EMITIDA",
+      estado: "EN_TIEMPO",
       items: {
         create: mappedItems
       }
@@ -47,7 +47,7 @@ export async function createOrden(proveedorId: number, fechaEsperada: string, it
 export async function getPendingOrders() {
   const data = await prisma.ordenCompra.findMany({
     where: {
-      estado: { in: ["EMITIDA", "EN_TRANSITO"] }
+      estado: { in: ["EN_TIEMPO", "EN_TRANSITO"] }
     },
     include: {
       proveedor: true,
