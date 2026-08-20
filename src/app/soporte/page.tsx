@@ -61,11 +61,21 @@ const documentation = [
 export default function SoportePage() {
   const [activeDoc, setActiveDoc] = useState<string | null>("recepcion");
   const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'ai', text: '¡Hola! Soy tu asistente de Inteligencia Artificial para OncoManage. Puedo ayudarte a resolver dudas sobre cómo usar los módulos, políticas de recepción técnica, o cualquier otra consulta del aplicativo. ¿En qué te puedo ayudar hoy?' }
+    { role: 'ai', text: '¡Hola! Soy tu asistente de Inteligencia Artificial para OncoManage. Puedo ayudarte a resolver dudas sobre cómo usar los módulos, políticas de recepción técnica, o informarte sobre datos en tiempo real (por ejemplo, "¿cuántas órdenes están pendientes?" o "¿cuántas están recibidas?"). ¿En qué te puedo ayudar hoy?' }
   ]);
   const [chatInput, setChatInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [systemOrders, setSystemOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mockOrders');
+      if (saved) {
+        setSystemOrders(JSON.parse(saved));
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -82,13 +92,35 @@ export default function SoportePage() {
     setChatInput("");
     setIsTyping(true);
 
-    // Simulated AI Response based on keywords
+    // Updated orders on the fly just in case
+    let currentOrders = systemOrders;
+    if (typeof window !== 'undefined') {
+       const saved = localStorage.getItem('mockOrders');
+       if (saved) currentOrders = JSON.parse(saved);
+       setSystemOrders(currentOrders);
+    }
+
     setTimeout(() => {
       let reply = "No estoy seguro de tener la respuesta exacta. Por favor revisa el Manual de Usuario en la izquierda o contacta al administrador del sistema.";
-      
       const lower = newMsg.toLowerCase();
-      if (lower.includes("aql") || lower.includes("recepcion") || lower.includes("técnica")) {
-        reply = "Para la recepción técnica utilizamos las tablas AQL bajo ISO 2859-1 (Nivel de Inspección II). El sistema calcula la letra y tamaño de muestra de forma automática según la cantidad recibida. Los defectos permitidos son Críticos: 0%, Mayores: 1.5%, Menores: 4.0%. Si ingresas defectos por encima de estos límites, el ítem se envía a Cuarentena.";
+      
+      const pendientes = currentOrders.filter(o => o.estado === "EMITIDA" || o.estado === "EN_TRANSITO").length;
+      const recibidas = currentOrders.filter(o => o.estado === "RECIBIDA").length;
+      const emitidas = currentOrders.filter(o => o.estado === "EMITIDA").length;
+      const enTransito = currentOrders.filter(o => o.estado === "EN_TRANSITO").length;
+      const totalOrders = currentOrders.length;
+
+      if (lower.includes("cuantas ordenes") || lower.includes("cuántas órdenes") || lower.includes("cuantas órdenes")) {
+         if (lower.includes("pendiente")) {
+            reply = `Actualmente hay ${pendientes} órdenes pendientes de recepción (${emitidas} emitidas y ${enTransito} en tránsito).`;
+         } else if (lower.includes("recibida")) {
+            reply = `Al día de hoy, tenemos ${recibidas} órdenes que han sido recibidas exitosamente y procesadas en Recepción Técnica.`;
+         } else {
+            reply = `En el sistema hay un total de ${totalOrders} órdenes: ${recibidas} recibidas, ${emitidas} emitidas y ${enTransito} en tránsito.`;
+         }
+      }
+      else if (lower.includes("aql") || lower.includes("recepcion") || lower.includes("técnica")) {
+        reply = "Para la recepción técnica utilizamos las tablas AQL bajo ISO 2859-1 (Nivel de Inspección II). El sistema calcula la letra y tamaño de muestra de forma automática según la cantidad recibida. Los defectos permitidos son Críticos: 0, Mayores: AQL 1.5, Menores: AQL 4.0. Si ingresas defectos por encima de estos límites, el ítem se envía a Cuarentena.";
       } else if (lower.includes("lasa")) {
         reply = "Los medicamentos LASA (Look-Alike, Sound-Alike) son aquellos de alto riesgo por su similitud fonética o visual. En OncoManage, cuando proceses una Recepción Técnica, el sistema te alertará automáticamente en color rojo si el medicamento está catalogado como LASA para que tomes precauciones adicionales.";
       } else if (lower.includes("orden") || lower.includes("compras")) {
@@ -96,12 +128,12 @@ export default function SoportePage() {
       } else if (lower.includes("evaluacion") || lower.includes("fsf-024")) {
         reply = "La Evaluación Técnica (FSF-024) es el paso final de la recepción. Se te harán preguntas de cumplimiento y el sistema asignará un puntaje de 1 a 4 según el porcentaje (ej. Mayor a 90% = 4). Puedes descargar esto como un PDF.";
       } else if (lower.includes("hola") || lower.includes("saludos")) {
-        reply = "¡Hola! Estoy listo para ayudarte con OncoManage. Escribe tu pregunta sobre cualquier módulo.";
+        reply = "¡Hola! Estoy listo para ayudarte con OncoManage. Escribe tu pregunta sobre cualquier módulo o consúltame sobre las órdenes de compra activas.";
       }
 
       setMessages(prev => [...prev, { role: 'ai', text: reply }]);
       setIsTyping(false);
-    }, 1500);
+    }, 1200);
   };
 
   return (
