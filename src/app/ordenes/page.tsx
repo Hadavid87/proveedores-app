@@ -200,11 +200,11 @@ export default function OrdenesPage() {
 
       {/* MODAL: EMITIR OC */}
       <Dialog open={isEmitirOpen} onOpenChange={setIsEmitirOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-4xl w-[90vw]">
           <DialogHeader>
             <DialogTitle className="font-heading font-bold text-[#0F172A] text-xl">Emitir Nueva Orden de Compra</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-6 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Proveedor</label>
