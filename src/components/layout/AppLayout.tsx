@@ -26,7 +26,14 @@ const navItems: NavItem[] = [
   { href: "/productos", icon: Pill, label: "Medicamentos" },
   { href: "/ordenes", icon: ShoppingCart, label: "Órdenes de Compra" },
   { href: "/recepciones", icon: Package, label: "Recepción Técnica" },
-  { href: "/calidad", icon: Activity, label: "Control de Calidad" },
+  { 
+    icon: Activity, 
+    label: "Control de Calidad",
+    subItems: [
+      { href: "/calidad", label: "CAPA" },
+      { href: "/calidad/aql", label: "Calculadora AQL" }
+    ]
+  },
   { href: "/reportes", icon: BarChart, label: "Reportes" },
   { 
     icon: Settings, 
