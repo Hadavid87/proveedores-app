@@ -41,7 +41,7 @@ export async function createOrden(proveedorId: number, fechaEsperada: string, it
 
   revalidatePath("/ordenes");
   revalidatePath("/recepciones");
-  return orden;
+  return JSON.parse(JSON.stringify(orden));
 }
 
 export async function getPendingOrders() {
@@ -126,7 +126,7 @@ export async function processRecepcionItem(
 
   revalidatePath("/recepciones");
   revalidatePath("/ordenes");
-  return recepcion;
+  return JSON.parse(JSON.stringify(recepcion));
 }
 
 // --- PROVEEDORES Y PRODUCTOS ---
