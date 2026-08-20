@@ -217,7 +217,7 @@ export default function OrdenesPage() {
                   }}
                 >
                   <option value="" disabled>Seleccione un proveedor...</option>
-                  {mockProveedores.map(p => <option key={p.id} value={p.id}>{p.razonSocial}</option>)}
+                  {dbProveedores.map(p => <option key={p.id} value={p.id}>{p.razonSocial}</option>)}
                 </select>
               </div>
 
