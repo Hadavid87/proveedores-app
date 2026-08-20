@@ -200,7 +200,7 @@ export default function OrdenesPage() {
 
       {/* MODAL: EMITIR OC */}
       <Dialog open={isEmitirOpen} onOpenChange={setIsEmitirOpen}>
-        <DialogContent className="max-w-4xl w-[90vw]">
+        <DialogContent className="sm:max-w-4xl w-[90vw]">
           <DialogHeader>
             <DialogTitle className="font-heading font-bold text-[#0F172A] text-xl">Emitir Nueva Orden de Compra</DialogTitle>
           </DialogHeader>
