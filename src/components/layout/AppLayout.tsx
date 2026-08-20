@@ -160,7 +160,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-md">
               <Menu className="w-5 h-5" />
             </button>
-            <h2 className="text-lg font-heading font-bold text-[#0F172A] hidden md:block tracking-tight">OncoManage v2.4</h2>
+            <h2 className="text-lg font-heading font-bold text-[#0F172A] hidden md:block tracking-tight">OncoManage</h2>
             <div className="relative hidden sm:block w-64 md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input placeholder="Buscar proveedores, órdenes..." className="pl-9 h-9 bg-neutral border-slate-200 rounded-full text-sm shadow-sm focus-visible:ring-1 focus-visible:ring-secondary/50" />

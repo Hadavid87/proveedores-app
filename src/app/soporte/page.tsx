@@ -139,7 +139,10 @@ export default function SoportePage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300 h-[calc(100vh-140px)] flex flex-col">
       <div>
-        <h1 className="text-3xl font-heading font-bold tracking-tight text-[#0F172A]">Soporte y Ayuda</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-heading font-bold tracking-tight text-[#0F172A]">Soporte y Ayuda</h1>
+          <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">OncoManage v2.4</span>
+        </div>
         <p className="text-sm text-slate-500 mt-1.5 font-medium">
           Manual de procedimientos e Inteligencia Artificial de consulta.
         </p>
