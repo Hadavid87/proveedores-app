@@ -145,7 +145,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {renderNavItems()}
 
         <div className="p-4 space-y-1 mb-2">
-          <Link href="/support" className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors text-[13px] font-bold tracking-wide">
+          <Link href="/soporte" className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors text-[13px] font-bold tracking-wide">
             <HelpCircle className="w-[18px] h-[18px] text-slate-500" />
             <span>Soporte</span>
           </Link>
