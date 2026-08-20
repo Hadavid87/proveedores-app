@@ -137,6 +137,42 @@ export async function getProveedores() {
   return JSON.parse(JSON.stringify(data));
 }
 
+export async function createProveedor(data: any) {
+  const prov = await prisma.proveedor.create({
+    data: {
+      nit: data.nit,
+      razonSocial: data.razonSocial,
+      emailLogistica: data.emailLogistica,
+      kamNombre: data.kamNombre,
+      condicionPago: "CONTADO",
+      estado: "ACTIVO"
+    }
+  });
+  revalidatePath("/proveedores");
+  return JSON.parse(JSON.stringify(prov));
+}
+
+export async function updateProveedor(id: number, data: any) {
+  const prov = await prisma.proveedor.update({
+    where: { id },
+    data: {
+      nit: data.nit,
+      razonSocial: data.razonSocial,
+      emailLogistica: data.emailLogistica,
+      kamNombre: data.kamNombre,
+      estado: data.estado
+    }
+  });
+  revalidatePath("/proveedores");
+  return JSON.parse(JSON.stringify(prov));
+}
+
+export async function deleteProveedor(id: number) {
+  await prisma.proveedor.delete({ where: { id } });
+  revalidatePath("/proveedores");
+  return { success: true };
+}
+
 export async function getProductos() {
   const data = await prisma.producto.findMany({
     include: {

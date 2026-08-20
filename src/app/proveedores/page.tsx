@@ -1,27 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Search, Filter, Plus, Edit2, Building2, Mail, Phone, Trash2, Download, FileText, Upload, CheckCircle2, X } from "lucide-react";
+import { Search, Filter, Plus, Edit2, Building2, Mail, Phone, Trash2, Download, FileText, Upload, CheckCircle2, X, RefreshCw } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 import { initialClassifications } from "@/lib/mockClasificaciones";
+import { getProveedores, createProveedor, updateProveedor, deleteProveedor } from "../actions";
 
 const defaultDocs = {
   docFormularioRegistro: "OK", docRut: "OK", docCamaraComercio: "OK", docCertificacionBancaria: "OK",
   docCedulaRepLegal: "OK", docHabilitacion: "N/A", docVerificacionLAFT: "OK", solicitudActualizacion: "NO",
   fechaFormulario: "2024-01-15", fechaInicioComercial: "2024-02-01"
 };
-
-const initialProveedores = [
-  { id: 1, nit: "900.123.456-7", razonSocial: "PharmaCore Andina S.A.", emailLogistica: "e.rojas@pharmacore.com", kamNombre: "Elena Rojas", puntajeActual: 4.8, estado: "ACTIVO", clasificacionId: 1, ...defaultDocs },
-  { id: 2, nit: "800.987.654-2", razonSocial: "OncoMeds Distribución SAS", emailLogistica: "c.velez@oncomeds.com", kamNombre: "Carlos Velez", puntajeActual: 4.1, estado: "ACTIVO", clasificacionId: 1, ...defaultDocs },
-  { id: 3, nit: "830.111.222-9", razonSocial: "BioTech Solutions Ltd.", emailLogistica: "m.pineda@biotech.com", kamNombre: "Mariana Pineda", puntajeActual: 2.9, estado: "INACTIVO", clasificacionId: 3, ...defaultDocs, docRut: "NO", docCamaraComercio: "NO" },
-];
 
 const defaultForm = {
   razonSocial: "", nit: "", kamNombre: "", emailLogistica: "", clasificacionId: 1,
@@ -31,13 +26,32 @@ const defaultForm = {
 };
 
 export default function ProveedoresPage() {
-  const [proveedores, setProveedores] = useState(initialProveedores);
-  const [selectedProv, setSelectedProv] = useState(initialProveedores[0]);
+  const [proveedores, setProveedores] = useState<any[]>([]);
+  const [selectedProv, setSelectedProv] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"CREATE" | "EDIT">("CREATE");
   const [formData, setFormData] = useState<any>(defaultForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterClasificacionId, setFilterClasificacionId] = useState<number | "">("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadProveedores = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getProveedores();
+      // Inject default docs for visual completeness in the demo
+      const enriched = data.map((p: any) => ({ ...p, clasificacionId: 1, ...defaultDocs }));
+      setProveedores(enriched);
+      if (enriched.length > 0 && !selectedProv) setSelectedProv(enriched[0]);
+    } catch (e) {
+      console.error(e);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadProveedores();
+  }, []);
 
   const handleOpenCreate = () => {
     setModalMode("CREATE");
@@ -55,33 +69,32 @@ export default function ProveedoresPage() {
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
-    if (modalMode === "CREATE") {
-      const newProv = {
-        id: Date.now(),
-        ...formData,
-        puntajeActual: 5.0, // Default score for new providers
-        estado: "ACTIVO"
-      };
-      setProveedores([newProv, ...proveedores]);
-      setSelectedProv(newProv);
-    } else {
-      const updatedList = proveedores.map(p => 
-        p.id === selectedProv.id ? { ...p, ...formData } : p
-      );
-      setProveedores(updatedList);
-      setSelectedProv({ ...selectedProv, ...formData });
+  const handleSave = async () => {
+    try {
+      if (modalMode === "CREATE") {
+        await createProveedor(formData);
+      } else {
+        await updateProveedor(selectedProv.id, formData);
+      }
+      setIsModalOpen(false);
+      await loadProveedores();
+    } catch (e) {
+      console.error("Error saving proveedor:", e);
+      alert("Hubo un error al guardar el proveedor. Revisa si el NIT ya existe.");
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedProv) return;
-    if (confirm("¿Estás seguro de eliminar este proveedor?")) {
-      const filtered = proveedores.filter(p => p.id !== selectedProv.id);
-      setProveedores(filtered);
-      if (filtered.length > 0) setSelectedProv(filtered[0]);
-      else setSelectedProv(null as any);
+    if (confirm("¿Estás seguro de eliminar este proveedor? Toda su información y órdenes asociadas podrían verse afectadas.")) {
+      try {
+        await deleteProveedor(selectedProv.id);
+        setSelectedProv(null);
+        await loadProveedores();
+      } catch(e) {
+         console.error(e);
+         alert("No se puede eliminar el proveedor porque tiene órdenes asociadas.");
+      }
     }
   };
 
