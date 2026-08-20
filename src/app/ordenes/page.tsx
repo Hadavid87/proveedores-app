@@ -7,23 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Clock, AlertTriangle, Truck, CheckCircle2 } from "lucide-react";
 
-// Mocks compartidos (En producción vendrían de la API/Base de datos)
-const mockProveedores = [
-  { id: 1, razonSocial: "PharmaCore Andina S.A." },
-  { id: 2, razonSocial: "OncoMeds Distribución SAS" },
-  { id: 3, razonSocial: "BioTech Solutions Ltd." },
-];
-
-const mockProductos = [
-  { id: "MED-001", nombre: "Dopamina", presentacion: "Ampolla 200mg/5ml", precioBase: 12500, proveedores: [1, 2] },
-  { id: "MED-002", nombre: "Ranitidina", presentacion: "Tableta 150mg", precioBase: 800, proveedores: [2] },
-  { id: "MED-003", nombre: "Acetaminofén", presentacion: "Tableta 500mg", precioBase: 150, proveedores: [1, 2, 3] },
-];
-
-const initialOrders = [
-  { id: 101, proveedorId: 1, proveedor: "PharmaCore Andina S.A.", fechaEsperada: "2026-08-16", estado: "EMITIDA", total: 125000, items: [{ prodId: "MED-001", nombre: "Dopamina", cantidad: 10, precio: 12500 }] },
-  { id: 102, proveedorId: 2, proveedor: "OncoMeds Distribución SAS", fechaEsperada: "2026-08-17", estado: "EN_TRANSITO", total: 16000, items: [{ prodId: "MED-002", nombre: "Ranitidina", cantidad: 20, precio: 800 }] },
-];
+import { getOrdenes, createOrden, ensureBasicData, getProveedores, getProductos } from "@/app/actions";
 
 function KanbanColumn({ title, icon, orders, colorClass, borderClass, onOrderClick }: { title: string, icon: React.ReactNode, orders: any[], colorClass: string, borderClass: string, onOrderClick: (o: any) => void }) {
   return (
@@ -33,23 +17,25 @@ function KanbanColumn({ title, icon, orders, colorClass, borderClass, onOrderCli
         <h3 className="uppercase tracking-wide text-sm">{title} <span className="bg-white/70 px-2 py-0.5 rounded-full text-xs ml-1 shadow-sm">{orders.length}</span></h3>
       </div>
       <div className="space-y-3">
-        {orders.map(order => (
+        {orders.map(order => {
+          const totalStr = order.items ? order.items.reduce((acc: number, item: any) => acc + (Number(item.cantidad) * Number(item.precio)), 0).toLocaleString() : "0";
+          return (
           <Card key={order.id} onClick={() => onOrderClick(order)} className={`cursor-pointer hover:shadow-md transition-shadow border-l-4 ${borderClass}`}>
             <CardHeader className="p-3 pb-2 flex flex-row items-start justify-between">
               <div>
                 <CardTitle className="text-sm font-heading font-bold text-[#0F172A]">OC-{order.id}</CardTitle>
-                <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-[180px]">{order.proveedor}</p>
+                <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-[180px]">{order.proveedor?.razonSocial || "Proveedor"}</p>
               </div>
-              <span className="text-[11px] font-bold bg-[#F8FAFC] text-slate-600 px-2 py-1 rounded border border-slate-100">${order.total.toLocaleString()}</span>
+              <span className="text-[11px] font-bold bg-[#F8FAFC] text-slate-600 px-2 py-1 rounded border border-slate-100">${totalStr}</span>
             </CardHeader>
             <CardContent className="p-3 pt-0">
               <div className="flex justify-between items-center mt-2 border-t pt-2 border-slate-100">
                 <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Esperada:</span>
-                <span className={`text-xs font-bold ${colorClass}`}>{order.fechaEsperada}</span>
+                <span className={`text-xs font-bold ${colorClass}`}>{new Date(order.fechaEsperada).toISOString().split('T')[0]}</span>
               </div>
             </CardContent>
           </Card>
-        ))}
+        )})}
         {orders.length === 0 && (
           <div className="text-center p-6 border-2 border-dashed border-slate-200 rounded-lg">
             <p className="text-sm text-slate-400 font-medium">No hay órdenes</p>
@@ -63,24 +49,41 @@ function KanbanColumn({ title, icon, orders, colorClass, borderClass, onOrderCli
 export default function OrdenesPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [dbProveedores, setDbProveedores] = useState<any[]>([]);
+  const [dbProductos, setDbProductos] = useState<any[]>([]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('mockOrders');
-    if (saved) {
-      setOrders(JSON.parse(saved));
-    } else {
-      setOrders(initialOrders);
-      localStorage.setItem('mockOrders', JSON.stringify(initialOrders));
+  const loadData = async () => {
+    try {
+      await ensureBasicData(); // Seed testing data
+      
+      const [ordenesData, provsData, prodsData] = await Promise.all([
+        getOrdenes(),
+        getProveedores(),
+        getProductos()
+      ]);
+      
+      setOrders(ordenesData);
+      setDbProveedores(provsData);
+      
+      // Transform products for the UI
+      const mappedProds = prodsData.map((p: any) => ({
+        id: p.codigo,
+        nombre: p.nombre,
+        presentacion: p.presentacion,
+        precioBase: Number(p.precioBase),
+        proveedores: p.proveedores.map((pp: any) => pp.proveedorId)
+      }));
+      setDbProductos(mappedProds);
+    } catch (e) {
+      console.error(e);
     }
     setIsLoaded(true);
-  }, []);
+  };
 
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('mockOrders', JSON.stringify(orders));
-    }
-  }, [orders, isLoaded]);
-  
+    loadData();
+  }, []);
+
   // Modals state
   const [isEmitirOpen, setIsEmitirOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -97,8 +100,8 @@ export default function OrdenesPage() {
   // Productos disponibles según el proveedor seleccionado
   const availableProducts = useMemo(() => {
     if (!selectedProvId) return [];
-    return mockProductos.filter(p => p.proveedores.includes(selectedProvId));
-  }, [selectedProvId]);
+    return dbProductos.filter(p => p.proveedores.includes(selectedProvId));
+  }, [selectedProvId, dbProductos]);
 
   const formTotal = items.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
 
@@ -115,7 +118,6 @@ export default function OrdenesPage() {
     const prod = availableProducts.find(p => p.id === selectedProdIdToAdd);
     if (!prod || cantidadToAdd <= 0) return;
     
-    // Verificar si ya existe en la lista
     const existingIndex = items.findIndex(i => i.prodId === prod.id);
     if (existingIndex >= 0) {
       const newItems = [...items];
@@ -132,22 +134,15 @@ export default function OrdenesPage() {
     setItems(items.filter(i => i.prodId !== prodId));
   };
 
-  const handleCreateOrder = () => {
+  const handleCreateOrder = async () => {
     if (!selectedProvId || items.length === 0 || !fechaEsperada) return;
-    const provName = mockProveedores.find(p => p.id === selectedProvId)?.razonSocial;
-
-    const newOrder = {
-      id: Date.now() % 100000,
-      proveedorId: selectedProvId,
-      proveedor: provName || "",
-      fechaEsperada: fechaEsperada,
-      estado: "EMITIDA",
-      total: formTotal,
-      items: items
-    };
-
-    setOrders([newOrder, ...orders]);
-    setIsEmitirOpen(false);
+    try {
+      await createOrden(selectedProvId, fechaEsperada, items);
+      setIsEmitirOpen(false);
+      await loadData();
+    } catch(e: any) {
+      alert("Error creando orden: " + e.message);
+    }
   };
 
   const handleOrderClick = (order: any) => {
@@ -155,8 +150,7 @@ export default function OrdenesPage() {
     setIsDetailOpen(true);
   };
 
-  const enTiempo = orders.filter(o => o.estado === "EN_TIEMPO");
-  const emitidas = orders.filter(o => o.estado === "EMITIDA");
+  const emitidas = orders.filter(o => o.estado === "EMITIDA" || o.estado === "EN_TIEMPO");
   const enTransito = orders.filter(o => o.estado === "EN_TRANSITO");
   const recibidas = orders.filter(o => o.estado === "RECIBIDA");
 
