@@ -178,7 +178,7 @@ export default function SoportePage() {
               <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-bold text-amber-800 text-sm">¿Necesitas soporte técnico?</h4>
-                <p className="text-xs text-amber-700 mt-1">Si encuentras un error en la plataforma, por favor repórtalo enviando una captura de pantalla al departamento de TI a <strong>soporte@oncocenter.com</strong>.</p>
+                <p className="text-xs text-amber-700 mt-1">Si encuentras un error en la plataforma, por favor repórtalo enviando una captura de pantalla al departamento de TI a <strong>soporte@nexatech.com.co</strong>.</p>
               </div>
             </div>
           </CardContent>
