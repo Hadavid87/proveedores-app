@@ -255,9 +255,9 @@ export default function ProveedoresPage() {
                     </TableCell>
                     <TableCell className="text-slate-600 text-[13px] font-mono py-4">{prov.nit}</TableCell>
                     <TableCell className="text-slate-600 text-[13px] py-4">
-                      {prov.kamNombre.split(' ').map((n, i) => (
+                      {prov.kamNombre ? prov.kamNombre.split(' ').map((n: string, i: number) => (
                         <div key={i}>{n}</div>
-                      ))}
+                      )) : <div>-</div>}
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex items-center gap-4">
