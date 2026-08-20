@@ -5,22 +5,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, CheckCircle2, ShieldAlert, AlertTriangle, Printer } from "lucide-react";
-import { calculateAQL } from "@/lib/aql";
+import { FileText, CheckCircle2, ShieldAlert, AlertTriangle, Printer, Activity } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { RecepcionWizard } from "@/components/recepcion/RecepcionWizard";
 
 const mockProductosTechInfo: Record<string, any> = {
-  "MED-001": { formaFarma: "Solución Inyectable", concentracion: "200mg/5ml", laboratorio: "PharmaCore Inc.", presentacion: "Caja x 10 Ampollas", regSanitario: "INVIMA 2019M-0012345" },
-  "MED-002": { formaFarma: "Tableta Recubierta", concentracion: "150mg", laboratorio: "Genéricos del Valle", presentacion: "Caja x 30 Tabletas", regSanitario: "INVIMA 2020M-0087654" },
-  "MED-003": { formaFarma: "Tableta", concentracion: "500mg", laboratorio: "BioTech", presentacion: "Caja x 100 Tabletas", regSanitario: "INVIMA 2018M-0001122" }
+  "MED-001": { formaFarma: "Solución Inyectable", concentracion: "200mg/5ml", laboratorio: "PharmaCore Inc.", presentacion: "Caja x 10 Ampollas", regSanitario: "INVIMA 2019M-0012345", isLASA: true, tipoLASA: "Alto Riesgo" },
+  "MED-002": { formaFarma: "Tableta Recubierta", concentracion: "150mg", laboratorio: "Genéricos del Valle", presentacion: "Caja x 30 Tabletas", regSanitario: "INVIMA 2020M-0087654", isLASA: false },
+  "MED-003": { formaFarma: "Tableta", concentracion: "500mg", laboratorio: "BioTech", presentacion: "Caja x 100 Tabletas", regSanitario: "INVIMA 2018M-0001122", isLASA: true, tipoLASA: "Parecido Fonético" }
 };
 
-// Estado para cada fila de recepción
 type RowState = {
-  lote: string;
-  vencimiento: string;
-  cantRecibida: string;
-  tRecepcion: string;
-  isReceived: boolean;
+  estado: string; // PENDIENTE, ACEPTADO, CUARENTENA
+  techData?: any;
+  evalData?: any;
+  finalScore?: number;
 };
 
 export default function RecepcionesPage() {
@@ -28,73 +27,59 @@ export default function RecepcionesPage() {
   const [rowsState, setRowsState] = useState<Record<string, RowState>>({});
   const [fechaActual, setFechaActual] = useState("");
   const [pendingOrders, setPendingOrders] = useState<any[]>([]);
+  
+  const [activeItem, setActiveItem] = useState<any>(null);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   useEffect(() => {
     setFechaActual(new Date().toLocaleDateString());
     const saved = localStorage.getItem('mockOrders');
     if (saved) {
       const allOrders = JSON.parse(saved);
-      // Filtramos órdenes que no han sido recibidas
       setPendingOrders(allOrders.filter((o: any) => o.estado !== "RECIBIDA" && o.estado !== "VENCIDA"));
     }
   }, []);
 
   const currentOrderRaw = pendingOrders.find(o => o.id === selectedOrderId);
   
-  // Enriquecemos la orden actual con los datos técnicos
   const currentOrder = currentOrderRaw ? {
     ...currentOrderRaw,
     items: currentOrderRaw.items.map((it: any) => ({
       ...it,
       cantidadEsperada: it.cantidad,
       ...(mockProductosTechInfo[it.prodId] || {
-        formaFarma: "N/A", concentracion: "N/A", laboratorio: "N/A", presentacion: "N/A", regSanitario: "N/A"
+        formaFarma: "N/A", concentracion: "N/A", laboratorio: "N/A", presentacion: "N/A", regSanitario: "N/A", isLASA: false
       })
     }))
   } : null;
 
-  // Inicializar estado de las filas cuando cambia la orden
   const handleOrderSelect = (orderId: number) => {
     setSelectedOrderId(orderId);
     const order = pendingOrders.find(o => o.id === orderId);
     if (order) {
       const initialRowStates: Record<string, RowState> = {};
       order.items.forEach((item: any) => {
-        initialRowStates[item.prodId] = {
-          lote: "",
-          vencimiento: "",
-          cantRecibida: "",
-          tRecepcion: "15-25°C", // Temperatura ambiente por defecto
-          isReceived: false
-        };
+        initialRowStates[item.prodId] = { estado: "PENDIENTE" };
       });
       setRowsState(initialRowStates);
     }
   };
 
-  const handleRowChange = (prodId: string, field: keyof RowState, value: any) => {
-    setRowsState(prev => ({
-      ...prev,
-      [prodId]: {
-        ...(prev[prodId] || {
-          lote: "",
-          vencimiento: "",
-          cantRecibida: "",
-          tRecepcion: "15-25°C",
-          isReceived: false
-        }),
-        [field]: value
-      }
-    }));
+  const openWizard = (item: any) => {
+    setActiveItem(item);
+    setIsWizardOpen(true);
   };
 
-  const handleReceiveRow = (prodId: string) => {
-    const row = rowsState[prodId];
-    if (!row.lote || !row.vencimiento || !row.cantRecibida) {
-      alert("Por favor diligencie Lote, Vencimiento y Cantidad antes de recibir.");
-      return;
-    }
-    handleRowChange(prodId, 'isReceived', true);
+  const handleWizardSave = (data: any) => {
+    setRowsState(prev => ({
+      ...prev,
+      [activeItem.prodId]: {
+        ...prev[activeItem.prodId],
+        ...data
+      }
+    }));
+    setIsWizardOpen(false);
+    setActiveItem(null);
   };
 
   const handleFinishOrder = () => {
@@ -113,7 +98,7 @@ export default function RecepcionesPage() {
     }
   };
 
-  const isOrderFullyReceived = currentOrder ? currentOrder.items.every((it: any) => rowsState[it.prodId]?.isReceived) : false;
+  const isOrderFullyProcessed = currentOrder ? currentOrder.items.every((it: any) => rowsState[it.prodId]?.estado !== "PENDIENTE") : false;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -127,7 +112,7 @@ export default function RecepcionesPage() {
         <div className="flex items-center gap-3">
           <Button variant="outline" className="bg-white border-slate-200 text-slate-600 shadow-sm h-10 px-4">
             <Printer className="w-4 h-4 mr-2" />
-            Imprimir Acta
+            Imprimir Acta Global
           </Button>
           <div className="w-[300px]">
             <select 
@@ -156,113 +141,59 @@ export default function RecepcionesPage() {
           </div>
           
           <div className="overflow-x-auto">
-            <Table className="min-w-[1400px]">
+            <Table className="min-w-[1200px]">
               <TableHeader className="bg-slate-100">
                 <TableRow className="border-b border-slate-200">
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Nombre Genérico/Comercial</TableHead>
+                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Producto</TableHead>
                   <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Forma Fceútica</TableHead>
                   <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Concentración</TableHead>
                   <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Lab. Fabricante</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Presentación Com.</TableHead>
                   <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200">Reg. Sanitario</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-24 text-center bg-[#0EA5E9]/10">Muestra (AQL)</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-32">Nº Lote</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-36">Vencimiento</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-28">Cant. Recibida</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-28">T de Recepción</TableHead>
-                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 w-28 text-center">Acción</TableHead>
+                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-32">Cant. Esperada</TableHead>
+                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 border-r border-slate-200 w-32 text-center">Estado</TableHead>
+                  <TableHead className="text-[11px] font-bold text-slate-700 uppercase p-2 w-32 text-center">Acción</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {currentOrder.items.map((item: any) => {
-                  const state = rowsState[item.prodId] || {};
-                  const isReceived = state.isReceived;
-                  
-                  // Calculo de muestra dinámica basado en la cantidad que el usuario está escribiendo
-                  const cantNumerica = parseInt(state.cantRecibida) || 0;
-                  const muestra = cantNumerica > 0 ? calculateAQL(cantNumerica).n : 0;
-                  
-                  // Alertas dinámicas
-                  const isRanitidina = item.nombre.toLowerCase().includes("ranitidina");
+                  const state = rowsState[item.prodId] || { estado: "PENDIENTE" };
                   
                   return (
-                    <TableRow key={item.prodId} className={`border-b border-slate-100 transition-colors ${isReceived ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}`}>
+                    <TableRow key={item.prodId} className={`border-b border-slate-100 transition-colors ${state.estado === 'ACEPTADO' ? 'bg-emerald-50/50' : state.estado === 'CUARENTENA' ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
                       <TableCell className="p-2 border-r border-slate-100">
                         <div className="font-bold text-[12px] text-[#0F172A]">{item.nombre}</div>
-                        {isRanitidina && !isReceived && (
-                          <div className="text-[9px] font-bold text-rose-600 mt-1 flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Alerta INVIMA</div>
+                        {item.isLASA && (
+                          <div className="text-[9px] font-bold text-rose-600 mt-1 flex items-center gap-1">
+                            <Activity className="w-3 h-3"/> LASA: {item.tipoLASA}
+                          </div>
                         )}
                       </TableCell>
                       <TableCell className="p-2 border-r border-slate-100 text-[11px] text-slate-600">{item.formaFarma}</TableCell>
                       <TableCell className="p-2 border-r border-slate-100 text-[11px] font-mono text-slate-600">{item.concentracion}</TableCell>
                       <TableCell className="p-2 border-r border-slate-100 text-[11px] text-slate-600">{item.laboratorio}</TableCell>
-                      <TableCell className="p-2 border-r border-slate-100 text-[11px] text-slate-600">{item.presentacion}</TableCell>
                       <TableCell className="p-2 border-r border-slate-100 text-[11px] text-slate-600 font-mono">{item.regSanitario}</TableCell>
                       
-                      <TableCell className="p-2 border-r border-slate-100 text-center bg-[#0EA5E9]/5">
-                        <span className="text-[14px] font-bold text-[#0EA5E9]">{muestra > 0 ? muestra : '-'}</span>
+                      <TableCell className="p-2 border-r border-slate-100 font-bold text-slate-700">
+                        {item.cantidadEsperada} und
                       </TableCell>
                       
-                      <TableCell className="p-2 border-r border-slate-100">
-                        <Input 
-                          disabled={isReceived}
-                          value={state?.lote ?? ""}
-                          onChange={(e) => handleRowChange(item.prodId, "lote", e.target.value)}
-                          className="h-8 text-[11px] px-2 uppercase font-mono shadow-inner border-slate-300 focus-visible:ring-1 focus-visible:ring-[#0EA5E9]" 
-                          placeholder="Ej: L123" 
-                        />
-                      </TableCell>
-                      
-                      <TableCell className="p-2 border-r border-slate-100">
-                        <Input 
-                          disabled={isReceived}
-                          type="date"
-                          value={state?.vencimiento ?? ""}
-                          onChange={(e) => handleRowChange(item.prodId, "vencimiento", e.target.value)}
-                          className="h-8 text-[11px] px-2 shadow-inner border-slate-300 focus-visible:ring-1 focus-visible:ring-[#0EA5E9]" 
-                        />
-                      </TableCell>
-                      
-                      <TableCell className="p-2 border-r border-slate-100 relative">
-                        <Input 
-                          disabled={isReceived}
-                          type="number"
-                          min="0"
-                          value={state?.cantRecibida ?? ""}
-                          onChange={(e) => handleRowChange(item.prodId, "cantRecibida", e.target.value)}
-                          className="h-8 text-[12px] px-2 font-bold shadow-inner border-slate-300 focus-visible:ring-1 focus-visible:ring-[#0EA5E9]" 
-                          placeholder={`Esp: ${item.cantidadEsperada}`}
-                        />
-                        {!isReceived && state?.cantRecibida && parseInt(state.cantRecibida) !== item.cantidadEsperada && parseInt(state.cantRecibida) > 0 && (
-                           <div className="absolute top-1 right-3 text-[9px] text-amber-500 font-bold" title="No coincide con la Orden">
-                             <AlertTriangle className="w-3 h-3" />
-                           </div>
-                        )}
-                      </TableCell>
-                      
-                      <TableCell className="p-2 border-r border-slate-100">
-                        <Input 
-                          disabled={isReceived}
-                          value={state?.tRecepcion ?? ""}
-                          onChange={(e) => handleRowChange(item.prodId, "tRecepcion", e.target.value)}
-                          className="h-8 text-[11px] px-2 shadow-inner border-slate-300 focus-visible:ring-1 focus-visible:ring-[#0EA5E9]" 
-                        />
+                      <TableCell className="p-2 border-r border-slate-100 text-center">
+                        {state.estado === "PENDIENTE" && <Badge variant="outline" className="text-slate-500">Pendiente</Badge>}
+                        {state.estado === "CUARENTENA" && <Badge className="bg-amber-100 text-amber-700 border-amber-200">En Cuarentena</Badge>}
+                        {state.estado === "ACEPTADO" && <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Aceptado</Badge>}
                       </TableCell>
                       
                       <TableCell className="p-2 text-center">
-                        {isReceived ? (
-                          <div className="flex items-center justify-center gap-1 text-emerald-600 bg-emerald-100 rounded px-2 py-1">
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider">OK</span>
-                          </div>
-                        ) : (
+                        {state.estado === "PENDIENTE" ? (
                           <Button 
                             size="sm"
                             className="h-8 w-full bg-[#0F172A] hover:bg-[#0EA5E9] text-white text-[11px] font-bold"
-                            onClick={() => handleReceiveRow(item.prodId)}
+                            onClick={() => openWizard(item)}
                           >
-                            Recibir
+                            Procesar
                           </Button>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400">PROCESADO</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -272,18 +203,18 @@ export default function RecepcionesPage() {
             </Table>
           </div>
           <div className="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
-            <span className="text-xs text-slate-500">
-              La tabla se autoguarda localmente por sesión. Verifique el semáforo de Alertas INVIMA antes de recibir.
-            </span>
-            {isOrderFullyReceived && (
-              <Button 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold animate-in zoom-in duration-300"
-                onClick={handleFinishOrder}
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Finalizar y Cerrar Acta
-              </Button>
-            )}
+             <span className="text-xs text-slate-500">
+                Verifique los medicamentos catalogados como LASA (Alto Riesgo / Parecido Fonético).
+             </span>
+             {isOrderFullyProcessed && (
+                <Button 
+                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold animate-in zoom-in duration-300"
+                   onClick={handleFinishOrder}
+                >
+                   <CheckCircle2 className="w-4 h-4 mr-2" />
+                   Finalizar y Cerrar Orden
+                </Button>
+             )}
           </div>
         </Card>
       ) : (
@@ -292,6 +223,19 @@ export default function RecepcionesPage() {
           <p className="text-sm font-medium">Selecciona una Orden de Compra en la parte superior para visualizar la planilla.</p>
         </div>
       )}
+
+      {/* Dialog for Wizard */}
+      <Dialog open={isWizardOpen} onOpenChange={setIsWizardOpen}>
+         <DialogContent className="max-w-2xl p-0 border-none bg-transparent shadow-none">
+            {activeItem && (
+               <RecepcionWizard 
+                  item={activeItem} 
+                  onSave={handleWizardSave} 
+                  onCancel={() => setIsWizardOpen(false)} 
+               />
+            )}
+         </DialogContent>
+      </Dialog>
     </div>
   );
 }
