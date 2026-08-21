@@ -198,14 +198,13 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
         </div>
       )}
 
-      {/* Dynamic Modal for Forms */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col p-0">
+          <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
+            <DialogHeader className="p-6 pb-2">
               <DialogTitle>{editingItem ? 'Editar' : 'Crear'} {activeTab === 'roles' ? 'Rol' : 'Usuario'}</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="flex-1 overflow-y-auto p-6 pt-2 grid gap-4">
               {activeTab === 'roles' ? (
                 <>
                   <div className="grid gap-2">
@@ -305,7 +304,7 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
                 </>
               )}
             </div>
-            <DialogFooter>
+            <DialogFooter className="p-6 pt-4 border-t border-slate-100 bg-white">
               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
               <Button type="submit" className="bg-[#2E3192] hover:bg-[#2E3192]/90">Guardar Cambios</Button>
             </DialogFooter>
