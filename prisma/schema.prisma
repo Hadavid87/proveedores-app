@@ -138,13 +138,17 @@ model CapaTicket {
   @@map("capa_tickets")
 }
 
-enum RolUsuario {
-  ADMIN
-  DIRECTOR
-  GERENCIA
-  COMPRAS
-  PROVEEDOR
-  AUXILIAR
+model Rol {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+  descripcion String?
+  permisos    Json?     @default("{}")
+  esCustom    Boolean   @default(true) @map("es_custom")
+  activo      Boolean   @default(true)
+  
+  usuarios    Usuario[]
+
+  @@map("roles")
 }
 
 model Usuario {
@@ -152,7 +156,8 @@ model Usuario {
   email        String     @unique
   passwordHash String     @map("password_hash")
   nombre       String
-  rol          RolUsuario @default(ADMIN)
+  rolId        Int        @map("rol_id")
+  rol          Rol        @relation(fields: [rolId], references: [id])
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 

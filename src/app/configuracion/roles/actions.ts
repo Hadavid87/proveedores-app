@@ -12,6 +12,7 @@ export async function createRol(data: any) {
         descripcion: data.descripcion,
         esCustom: true,
         activo: data.activo,
+        permisos: data.permisos || {},
       }
     });
     revalidatePath("/configuracion/roles");
@@ -29,6 +30,7 @@ export async function updateRol(id: number, data: any) {
         nombre: data.nombre.toUpperCase(),
         descripcion: data.descripcion,
         activo: data.activo,
+        permisos: data.permisos || {},
       }
     });
     revalidatePath("/configuracion/roles");

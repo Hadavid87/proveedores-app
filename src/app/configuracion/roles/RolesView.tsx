@@ -19,7 +19,11 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
   const handleOpenModal = (item: any = null) => {
     setEditingItem(item);
     if (activeTab === "roles") {
-      setFormData(item || { nombre: "", descripcion: "", activo: true });
+      let parsedPermisos = {};
+      if (item?.permisos) {
+        parsedPermisos = typeof item.permisos === 'string' ? JSON.parse(item.permisos) : item.permisos;
+      }
+      setFormData(item ? { ...item, permisos: parsedPermisos } : { nombre: "", descripcion: "", activo: true, permisos: {} });
     } else {
       setFormData(item || { nombre: "", email: "", password: "", rolId: initialRoles[0]?.id });
     }
@@ -212,9 +216,48 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
                     <label className="text-sm font-medium">Descripción</label>
                     <Input required value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} />
                   </div>
+                  
+                  <div className="mt-4 border border-slate-200 rounded-lg overflow-hidden">
+                    <table className="w-full text-sm text-left">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold text-xs uppercase">
+                        <tr>
+                          <th className="px-4 py-3">Módulo</th>
+                          <th className="px-4 py-3 text-center">Ver</th>
+                          <th className="px-4 py-3 text-center">Editar</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {['reportes', 'proveedores', 'evaluaciones', 'recepcion', 'configuracion'].map(modulo => {
+                          const perms = formData.permisos || {};
+                          return (
+                            <tr key={modulo} className="hover:bg-slate-50/50">
+                              <td className="px-4 py-3 font-medium capitalize">{modulo.replace('recepcion', 'recepción técnica')}</td>
+                              <td className="px-4 py-3 text-center">
+                                <input type="checkbox" checked={perms[modulo]?.ver || false} 
+                                  onChange={e => setFormData({
+                                    ...formData, 
+                                    permisos: { ...perms, [modulo]: { ...perms[modulo], ver: e.target.checked } }
+                                  })}
+                                />
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <input type="checkbox" checked={perms[modulo]?.editar || false} 
+                                  onChange={e => setFormData({
+                                    ...formData, 
+                                    permisos: { ...perms, [modulo]: { ...perms[modulo], editar: e.target.checked } }
+                                  })}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
                   <div className="flex items-center gap-2 mt-2">
                     <input type="checkbox" checked={formData.activo} onChange={e => setFormData({...formData, activo: e.target.checked})} id="activo" />
-                    <label htmlFor="activo" className="text-sm font-medium">Activo</label>
+                    <label htmlFor="activo" className="text-sm font-medium">Rol Activo</label>
                   </div>
                 </>
               ) : (
