@@ -5,10 +5,11 @@ export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value;
   const isLoginPage = request.nextUrl.pathname === '/login';
   
-  // Public assets
+  // Public assets and seed route
   if (
     request.nextUrl.pathname.startsWith('/_next') ||
     request.nextUrl.pathname.startsWith('/favicon') ||
+    request.nextUrl.pathname.startsWith('/seed-admin') ||
     request.nextUrl.pathname.includes('.')
   ) {
     return NextResponse.next();
