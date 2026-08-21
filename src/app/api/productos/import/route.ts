@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+ï»¿import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
     const { csvText } = await req.json();
     if (!csvText) {
-      return NextResponse.json({ error: "No se proporcionó archivo CSV." }, { status: 400 });
+      return NextResponse.json({ error: "No se proporcionï¿½ archivo CSV." }, { status: 400 });
     }
 
     let lines = csvText.split('\n').map((l: string) => l.trim()).filter((l: string) => l);
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     }
     
     if (lines.length <= 1) {
-      return NextResponse.json({ error: "El archivo no tiene datos válidos." }, { status: 400 });
+      return NextResponse.json({ error: "El archivo no tiene datos vï¿½lidos." }, { status: 400 });
     }
 
     const delimiter = lines[0].includes(';') ? ';' : ',';
