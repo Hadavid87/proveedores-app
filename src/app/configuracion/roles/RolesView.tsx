@@ -227,24 +227,44 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {['TABLERO', 'GESTION DE PROVEEDORES', 'MEDICAMENTOS', 'ORDENES DE COMPRA', 'RECEPCION TECNICA', 'CONTROL DE CALIDAD'].map(modulo => {
+                        {[
+                          { key: 'tablero', label: 'Tablero', isSub: false },
+                          { key: 'gestion_proveedores', label: 'Gestión de Proveedores', isSub: false },
+                          { key: 'directorio', label: 'Directorio', isSub: true },
+                          { key: 'seleccion', label: 'Selección', isSub: true },
+                          { key: 'evaluaciones', label: 'Evaluaciones', isSub: true },
+                          { key: 'medicamentos', label: 'Medicamentos', isSub: false },
+                          { key: 'ordenes_compra', label: 'Órdenes de Compra', isSub: false },
+                          { key: 'recepcion_tecnica', label: 'Recepción Técnica', isSub: false },
+                          { key: 'control_calidad', label: 'Control de Calidad', isSub: false },
+                          { key: 'capa', label: 'CAPA', isSub: true },
+                          { key: 'calculadora_aql', label: 'Calculadora AQL', isSub: true },
+                          { key: 'reportes', label: 'Reportes', isSub: false },
+                          { key: 'configuracion', label: 'Configuración', isSub: false },
+                          { key: 'clasificacion', label: 'Clasificación', isSub: true },
+                          { key: 'criterios', label: 'Criterios', isSub: true },
+                          { key: 'roles_permisos', label: 'Roles y Permisos', isSub: true },
+                        ].map(modulo => {
                           const perms = formData.permisos || {};
                           return (
-                            <tr key={modulo} className="hover:bg-slate-50/50">
-                              <td className="px-4 py-3 font-medium capitalize">{modulo.toLowerCase()}</td>
-                              <td className="px-4 py-3 text-center">
-                                <input type="checkbox" checked={perms[modulo]?.ver || false} 
+                            <tr key={modulo.key} className="hover:bg-slate-50/50">
+                              <td className={`px-4 py-1.5 text-xs font-medium ${modulo.isSub ? 'pl-8 text-slate-500' : 'text-[#0F172A]'}`}>
+                                {modulo.isSub && <span className="mr-2 text-slate-300">└</span>}
+                                {modulo.label}
+                              </td>
+                              <td className="px-4 py-1.5 text-center">
+                                <input type="checkbox" checked={perms[modulo.key]?.ver || false} 
                                   onChange={e => setFormData({
                                     ...formData, 
-                                    permisos: { ...perms, [modulo]: { ...perms[modulo], ver: e.target.checked } }
+                                    permisos: { ...perms, [modulo.key]: { ...perms[modulo.key], ver: e.target.checked } }
                                   })}
                                 />
                               </td>
-                              <td className="px-4 py-3 text-center">
-                                <input type="checkbox" checked={perms[modulo]?.editar || false} 
+                              <td className="px-4 py-1.5 text-center">
+                                <input type="checkbox" checked={perms[modulo.key]?.editar || false} 
                                   onChange={e => setFormData({
                                     ...formData, 
-                                    permisos: { ...perms, [modulo]: { ...perms[modulo], editar: e.target.checked } }
+                                    permisos: { ...perms, [modulo.key]: { ...perms[modulo.key], editar: e.target.checked } }
                                   })}
                                 />
                               </td>
