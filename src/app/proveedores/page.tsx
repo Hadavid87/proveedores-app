@@ -43,7 +43,14 @@ export default function ProveedoresPage() {
     if (!csvFile) return;
     setIsUploading(true);
     try {
-      const text = await csvFile.text();
+      let text = await csvFile.text();
+      // Excel saves CSVs in Windows-1252 (ANSI) by default in LATAM.
+      if (text.includes('')) {
+        const buffer = await csvFile.arrayBuffer();
+        const decoder = new TextDecoder('windows-1252');
+        text = decoder.decode(buffer);
+      }
+      
       const res = await importarProveedoresCSV(text);
       alert(`Importación completada:\n- ${res.creados} procesados correctamente\n- ${res.omitidos} omitidos por error`);
       setIsCsvModalOpen(false);

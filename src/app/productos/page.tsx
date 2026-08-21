@@ -45,7 +45,15 @@ export default function ProductosPage() {
     if (!csvFile) return;
     setIsUploading(true);
     try {
-      const text = await csvFile.text();
+      let text = await csvFile.text();
+      // Excel saves CSVs in Windows-1252 (ANSI) by default in LATAM.
+      // file.text() assumes UTF-8. If it fails, it inserts the replacement character .
+      if (text.includes('')) {
+        const buffer = await csvFile.arrayBuffer();
+        const decoder = new TextDecoder('windows-1252');
+        text = decoder.decode(buffer);
+      }
+      
       const res = await fetch('/api/productos/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
