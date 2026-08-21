@@ -46,8 +46,9 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function AppLayout({ children }: { children: React.ReactNode }) {
+export function AppLayout({ children, user }: { children: React.ReactNode, user?: any }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const pathname = usePathname() || "/";
   
   // By default, open the group if we are inside one of its subItems
@@ -189,11 +190,35 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <button className="hover:text-[#0F172A] transition-colors">
               <Settings className="w-[18px] h-[18px]" />
             </button>
-            <form action={logout}>
-              <button type="submit" className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100 hover:ring-rose-500 transition-all group" title="Cerrar sesión">
-                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
+            <div className="relative">
+              <button 
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100 hover:ring-[#0EA5E9] transition-all group" 
+                title="Menú de Usuario"
+              >
+                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
               </button>
-            </form>
+              
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                  <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                    <p className="font-heading font-bold text-sm text-[#0F172A] truncate">{user?.nombre || 'Usuario'}</p>
+                    <p className="text-xs text-slate-500 font-medium truncate">{user?.email || 'admin@oncocenter.com'}</p>
+                    <div className="mt-2 inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#0EA5E9]/10 text-[#0EA5E9]">
+                      {user?.rol || 'ADMIN'}
+                    </div>
+                  </div>
+                  
+                  <div className="p-2">
+                    <form action={logout}>
+                      <button type="submit" className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose-600 font-semibold rounded-lg hover:bg-rose-50 transition-colors">
+                        Cerrar Sesión
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
