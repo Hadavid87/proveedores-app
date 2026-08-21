@@ -177,12 +177,13 @@ export async function importarProveedoresCSV(csvText: string) {
   const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
   if (lines.length <= 1) throw new Error("El archivo no tiene datos válidos.");
 
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const delimiter = lines[0].includes(';') ? ';' : ',';
+  const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
   let creados = 0;
   let omitidos = 0;
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim());
+    const values = lines[i].split(delimiter).map(v => v.trim());
     if (values.length < 2) continue;
 
     // Default column order based on template: nit, razonSocial, emailLogistica, kamNombre, condicionPago
