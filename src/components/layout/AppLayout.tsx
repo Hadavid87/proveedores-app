@@ -181,16 +181,6 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
           </div>
           
           <div className="flex items-center gap-4 lg:gap-6 text-slate-500">
-            <button className="hover:text-[#0F172A] transition-colors relative">
-              <Bell className="w-[18px] h-[18px]" />
-              <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-rose-500 rounded-full border border-white"></span>
-            </button>
-            <button className="hover:text-[#0F172A] transition-colors">
-              <Activity className="w-[18px] h-[18px]" />
-            </button>
-            <button className="hover:text-[#0F172A] transition-colors">
-              <Settings className="w-[18px] h-[18px]" />
-            </button>
             <div className="relative">
               <button 
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
