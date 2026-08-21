@@ -264,7 +264,7 @@ export default function DashboardPage() {
                 ))}
               </div>
               <div className="p-3 border-t border-amber-100 bg-amber-50/50">
-                <Link href="/medicamentos" className="text-xs font-bold text-amber-700 flex items-center justify-center hover:underline">
+                <Link href="/productos" className="text-xs font-bold text-amber-700 flex items-center justify-center hover:underline">
                   Ver inventario completo <ArrowRight className="w-3 h-3 ml-1" />
                 </Link>
               </div>
