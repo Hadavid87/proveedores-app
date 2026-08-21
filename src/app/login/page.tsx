@@ -3,7 +3,6 @@ import { useState } from "react";
 import { login } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Shield, KeyRound, Mail, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
@@ -49,9 +48,9 @@ export default function LoginPage() {
             
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
-                <Label htmlFor="email" className="block text-sm font-bold text-slate-700">
+                <label htmlFor="email" className="block text-sm font-bold text-slate-700">
                   Correo Electrónico
-                </Label>
+                </label>
                 <div className="mt-2 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-slate-400" />
@@ -69,9 +68,9 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <Label htmlFor="password" className="block text-sm font-bold text-slate-700">
+                <label htmlFor="password" className="block text-sm font-bold text-slate-700">
                   Contraseña
-                </Label>
+                </label>
                 <div className="mt-2 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <KeyRound className="h-5 w-5 text-slate-400" />
