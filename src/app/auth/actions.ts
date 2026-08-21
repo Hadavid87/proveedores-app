@@ -14,7 +14,8 @@ export async function login(formData: FormData) {
 
   try {
     const user = await prisma.usuario.findUnique({
-      where: { email }
+      where: { email },
+      include: { rol: true },
     });
 
     if (!user) {
@@ -29,7 +30,12 @@ export async function login(formData: FormData) {
       return { error: "Credenciales inválidas." };
     }
 
-    await createSession(user);
+    await createSession({
+      id: user.id,
+      email: user.email,
+      nombre: user.nombre,
+      rol: user.rol.nombre,
+    });
     
   } catch (error) {
     console.error("Login error:", error);
