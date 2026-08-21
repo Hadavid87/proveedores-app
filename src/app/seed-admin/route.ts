@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
-    const hash = await bcrypt.hash("admin123", 10);
+    const hash = "$2b$10$0mbDZ87suUYbIW6KK/eMb.miALMPuzGmlSoKN0zQa34U1vEx0pkaq";
     const user = await prisma.usuario.upsert({
       where: { email: "admin@oncocenter.com" },
       update: {},
