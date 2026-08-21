@@ -12,7 +12,7 @@ export async function createRol(data: any) {
         descripcion: data.descripcion,
         esCustom: true,
         activo: data.activo,
-        permisos: data.permisos || {},
+        permisos: data.permisos ? JSON.parse(JSON.stringify(data.permisos)) : {},
       }
     });
     revalidatePath("/configuracion/roles");
@@ -23,19 +23,22 @@ export async function createRol(data: any) {
 }
 
 export async function updateRol(id: number, data: any) {
+  console.log("updateRol called with id:", id, "data:", data);
   try {
-    await prisma.rol.update({
+    const updated = await prisma.rol.update({
       where: { id },
       data: {
-        nombre: data.nombre.toUpperCase(),
+        nombre: data.nombre?.toUpperCase(),
         descripcion: data.descripcion,
         activo: data.activo,
-        permisos: data.permisos || {},
+        permisos: data.permisos ? JSON.parse(JSON.stringify(data.permisos)) : {},
       }
     });
+    console.log("updateRol success:", updated);
     revalidatePath("/configuracion/roles");
     return { success: true };
   } catch (error: any) {
+    console.error("updateRol error:", error);
     return { error: error.message };
   }
 }

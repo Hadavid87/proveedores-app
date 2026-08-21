@@ -32,20 +32,33 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let res;
+    
+    // Preparar payload para evitar problemas de serialización en el límite servidor/cliente
+    const payload = { ...formData };
+    if (activeTab === "roles" && payload.permisos) {
+      payload.permisos = JSON.parse(JSON.stringify(payload.permisos));
+    }
+
     if (activeTab === "roles") {
       if (editingItem) {
-        await updateRol(editingItem.id, formData);
+        res = await updateRol(editingItem.id, payload);
       } else {
-        await createRol(formData);
+        res = await createRol(payload);
       }
     } else {
       if (editingItem) {
-        await updateUsuario(editingItem.id, formData);
+        res = await updateUsuario(editingItem.id, formData);
       } else {
-        await createUsuario(formData);
+        res = await createUsuario(formData);
       }
     }
-    setIsModalOpen(false);
+    
+    if (res?.error) {
+      alert("Error: " + res.error);
+    } else {
+      setIsModalOpen(false);
+    }
   };
 
   const handleDelete = async (id: number) => {
