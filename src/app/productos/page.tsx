@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Search, Plus, Edit2, Pill, Trash2, Download, Filter, Calendar, FileText, Loader2 } from "lucide-react";
+import { Search, Plus, Edit2, Pill, Trash2, Download, Filter, Calendar, FileText, Loader2, Upload } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -25,6 +25,10 @@ export default function ProductosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [formData, setFormData] = useState({ 
     id: 0, 
     codigo: "", 
@@ -36,6 +40,32 @@ export default function ProductosPage() {
     fichaTecnicaUrl: null as string | null 
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleCsvUpload = async () => {
+    if (!csvFile) return;
+    setIsUploading(true);
+    try {
+      const text = await csvFile.text();
+      const res = await fetch('/api/productos/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csvText: text })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Importación completada:\n- ${data.creados} procesados correctamente\n- ${data.omitidos} omitidos por error`);
+        setIsCsvModalOpen(false);
+        setCsvFile(null);
+        await fetchProductos();
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error desconocido al importar.");
+      }
+    } catch (e: any) {
+      alert("Error al importar CSV: " + e.message);
+    }
+    setIsUploading(false);
+  };
 
   const fetchProductos = async () => {
     setIsLoading(true);
@@ -232,6 +262,10 @@ export default function ProductosPage() {
           <Button onClick={handleDownloadPDF} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-[#F8FAFC] font-semibold shadow-sm rounded-lg h-10">
             <Download className="w-4 h-4 mr-2" />
             Exportar PDF
+          </Button>
+          <Button onClick={() => setIsCsvModalOpen(true)} variant="outline" className="bg-white border-slate-200 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-semibold shadow-sm rounded-lg h-10">
+            <Upload className="w-4 h-4 mr-2" />
+            Importar CSV
           </Button>
           <Button onClick={handleOpenCreate} className="bg-[#0F172A] hover:bg-[#0F172A]/90 text-white font-semibold shadow-sm rounded-lg h-10 px-5">
             <Plus className="w-4 h-4 mr-2" />
@@ -497,6 +531,44 @@ export default function ProductosPage() {
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
             <Button disabled={isSaving || !formData.codigo || !formData.nombre} className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 min-w-[120px]" onClick={handleSave}>
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : modalMode === "CREATE" ? "Crear Medicamento" : "Guardar Cambios"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Modal */}
+      <Dialog open={isCsvModalOpen} onOpenChange={setIsCsvModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="font-heading font-bold text-[#0F172A]">Importación Masiva (CSV)</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600 border border-slate-100">
+              <p className="font-bold mb-2 text-slate-700">Instrucciones:</p>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>Descarga la plantilla CSV y ábrela en Excel.</li>
+                <li>Llena las filas con los datos de los medicamentos.</li>
+                <li>Asegúrate de guardarlo como formato <strong>Valores separados por comas (.csv)</strong>.</li>
+                <li>Si un código ya existe, su información será actualizada.</li>
+              </ol>
+              <div className="mt-4">
+                <a href="/plantilla_medicamentos.csv" download className="inline-flex items-center text-[#0EA5E9] font-bold hover:underline">
+                  <Download className="w-4 h-4 mr-1" /> Descargar Plantilla
+                </a>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[#0F172A]">Subir archivo lleno (.csv)</label>
+              <div className="flex items-center gap-2">
+                <Input type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files?.[0] || null)} className="cursor-pointer" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsCsvModalOpen(false); setCsvFile(null); }}>Cancelar</Button>
+            <Button onClick={handleCsvUpload} disabled={!csvFile || isUploading} className="bg-[#0EA5E9] hover:bg-[#0284c7] text-white">
+              {isUploading ? "Importando..." : "Importar Datos"}
             </Button>
           </DialogFooter>
         </DialogContent>
