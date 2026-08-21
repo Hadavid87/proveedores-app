@@ -129,60 +129,114 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
                 : "text-slate-600 hover:bg-slate-200"
             }`}
           >
-            <item.icon className={`w-[18px] h-[18px] ${isActive ? "text-white" : "text-slate-500"}`} />
-            <span>{item.label}</span>
-          </Link>
-        )
-      })}
-    </nav>
-  );
-
-  if (pathname === '/login') {
-    return <>{children}</>;
-  }
+  if (pathname === '/login') return <>{children}</>;
 
   return (
-    <div className="flex min-h-screen bg-neutral text-slate-900 font-sans">
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-[260px] flex-col bg-[#f3f4f6] border-r border-slate-200 min-h-screen fixed h-full z-40">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md flex items-center justify-center overflow-hidden shrink-0">
-            <img src="/logo.png" alt="OncoCenter Logo" className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <h1 className="text-lg font-heading font-bold leading-tight text-[#0F172A]">OncoCenter</h1>
-            <p className="text-[10px] text-slate-500 font-medium tracking-wide">Gestión de Proveedores</p>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row font-sans">
+      {/* Mobile Header */}
+      <div className="lg:hidden flex items-center justify-between bg-[#f3f4f6] p-4 border-b border-slate-200 sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#2E3192] flex items-center justify-center">
+            <span className="text-white font-bold text-sm">OM</span>
           </div>
         </div>
-        
-        {renderNavItems()}
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -mr-2 text-[#0F172A] hover:bg-slate-200 rounded-lg">
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
-        <div className="p-4 space-y-1 mb-2">
-          <Link href="/soporte" className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors text-[13px] font-bold tracking-wide">
-            <HelpCircle className="w-[18px] h-[18px] text-slate-500" />
-            <span>Soporte</span>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col w-64 h-screen bg-[#f3f4f6] border-r border-slate-200 fixed left-0 top-0 z-30">
+        <div className="p-4 border-b border-slate-200 flex flex-col items-center justify-center gap-3 py-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#2E3192] to-[#0EA5E9] flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-xl tracking-tight">OM</span>
+          </div>
+        </div>
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {navItems.map((item) => (
+            <div key={item.href || item.label}>
+              {item.subItems ? (
+                <div>
+                  <button
+                    onClick={() => toggleGroup(item.label)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group ${
+                      openGroups[item.label] 
+                        ? "bg-[#2E3192] text-white shadow-md shadow-[#2E3192]/20" 
+                        : "text-[#64748B] hover:bg-white hover:text-[#0F172A] hover:shadow-sm"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className={`w-[18px] h-[18px] ${openGroups[item.label] ? "text-white" : "text-[#64748B] group-hover:text-[#0EA5E9]"}`} />
+                      {item.label}
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openGroups[item.label] ? "rotate-180 text-white" : "text-slate-400"}`} />
+                  </button>
+                  <div className={`mt-1 ml-4 pl-4 border-l border-slate-200 space-y-1 overflow-hidden transition-all duration-200 ease-in-out ${openGroups[item.label] ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+                    {item.subItems.map(sub => {
+                      const isSubActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          className={`block px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                            isSubActive
+                              ? "bg-white text-[#0EA5E9] font-bold shadow-sm"
+                              : "text-[#64748B] font-medium hover:bg-white hover:text-[#0F172A]"
+                          }`}
+                        >
+                          {sub.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  href={item.href!}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group ${
+                    pathname === item.href
+                      ? "bg-[#2E3192] text-white shadow-md shadow-[#2E3192]/20"
+                      : "text-[#64748B] hover:bg-white hover:text-[#0F172A] hover:shadow-sm"
+                  }`}
+                >
+                  <item.icon className={`w-[18px] h-[18px] ${pathname === item.href ? "text-white" : "text-[#64748B] group-hover:text-[#0EA5E9]"}`} />
+                  {item.label}
+                </Link>
+              )}
+            </div>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-slate-200">
+          <Link
+            href="/soporte"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group ${
+              pathname === "/soporte"
+                ? "bg-slate-800 text-white shadow-md"
+                : "text-[#64748B] hover:bg-white hover:text-[#0F172A] hover:shadow-sm"
+            }`}
+          >
+            <HelpCircle className={`w-[18px] h-[18px] ${pathname === "/soporte" ? "text-white" : "text-[#64748B] group-hover:text-slate-800"}`} />
+            Soporte
           </Link>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:ml-[260px] relative min-h-screen bg-neutral min-w-0">
-        {/* Topbar */}
-        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
-          <div className="flex items-center gap-4 lg:gap-8">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-md">
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="relative hidden sm:block w-64 md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input placeholder="Buscar proveedores, órdenes..." className="pl-9 h-9 bg-neutral border-slate-200 rounded-full text-sm shadow-sm focus-visible:ring-1 focus-visible:ring-secondary/50" />
-            </div>
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 flex flex-col min-h-screen relative">
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
+          <div className="flex-1 max-w-xl hidden md:block relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Input 
+              placeholder="Buscar proveedores, órdenes, medicamentos..." 
+              className="pl-9 bg-slate-50 border-slate-200 h-9 text-sm focus-visible:ring-[#0EA5E9] focus-visible:border-[#0EA5E9] w-full"
+            />
           </div>
           
-          <div className="flex items-center gap-4 lg:gap-6 text-slate-500">
-            <button className="hover:text-[#0F172A] transition-colors relative">
+          <div className="flex items-center gap-4 text-slate-500 ml-auto">
+            <button className="relative hover:text-[#0F172A] transition-colors">
               <Bell className="w-[18px] h-[18px]" />
-              <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-rose-500 rounded-full border border-white"></span>
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full border border-white"></span>
             </button>
             <button className="hover:text-[#0F172A] transition-colors">
               <Activity className="w-[18px] h-[18px]" />
@@ -193,10 +247,12 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             <div className="relative">
               <button 
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100 hover:ring-[#0EA5E9] transition-all group" 
+                className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100 hover:ring-[#0EA5E9] transition-all group flex items-center justify-center" 
                 title="Menú de Usuario"
               >
-                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+                <div className="w-full h-full bg-[#0EA5E9] text-white flex items-center justify-center font-bold text-sm">
+                  {user?.nombre ? user.nombre.charAt(0).toUpperCase() : 'U'}
+                </div>
               </button>
               
               {isProfileMenuOpen && (
