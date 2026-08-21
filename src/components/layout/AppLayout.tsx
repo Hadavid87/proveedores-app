@@ -135,6 +135,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </nav>
   );
 
+  if (pathname === '/login') {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex min-h-screen bg-neutral text-slate-900 font-sans">
       {/* Desktop Sidebar */}
@@ -184,9 +188,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <button className="hover:text-[#0F172A] transition-colors">
               <Settings className="w-[18px] h-[18px]" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100">
-              <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" className="w-full h-full object-cover" />
-            </div>
+            <form action={async () => {
+              "use server";
+              const { logout } = await import("@/app/auth/actions");
+              await logout();
+            }}>
+              <button type="submit" className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100 hover:ring-rose-500 transition-all group" title="Cerrar sesión">
+                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
+              </button>
+            </form>
           </div>
         </header>
 

@@ -137,3 +137,20 @@ model CapaTicket {
 
   @@map("capa_tickets")
 }
+
+enum RolUsuario {
+  ADMIN
+  PROVEEDOR
+}
+
+model Usuario {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  nombre       String
+  rol          RolUsuario @default(ADMIN)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("usuarios")
+}
