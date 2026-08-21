@@ -227,11 +227,11 @@ export default function RolesView({ initialRoles, initialUsuarios }: { initialRo
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {['reportes', 'proveedores', 'evaluaciones', 'recepcion', 'configuracion'].map(modulo => {
+                        {['TABLERO', 'GESTION DE PROVEEDORES', 'MEDICAMENTOS', 'ORDENES DE COMPRA', 'RECEPCION TECNICA', 'CONTROL DE CALIDAD'].map(modulo => {
                           const perms = formData.permisos || {};
                           return (
                             <tr key={modulo} className="hover:bg-slate-50/50">
-                              <td className="px-4 py-3 font-medium capitalize">{modulo.replace('recepcion', 'recepción técnica')}</td>
+                              <td className="px-4 py-3 font-medium capitalize">{modulo.toLowerCase()}</td>
                               <td className="px-4 py-3 text-center">
                                 <input type="checkbox" checked={perms[modulo]?.ver || false} 
                                   onChange={e => setFormData({
