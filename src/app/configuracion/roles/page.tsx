@@ -1,4 +1,15 @@
-import { Shield } from "lucide-react";
+import { Shield, Plus, MoreHorizontal, CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+const mockRoles = [
+  { id: 1, name: "Administrador", description: "Acceso total a todos los módulos y configuraciones del sistema.", isCustom: false, active: true },
+  { id: 2, name: "Director", description: "Acceso a reportes gerenciales, aprobaciones de CAPA y calidad.", isCustom: false, active: true },
+  { id: 3, name: "Gerencia", description: "Visualización de tableros estratégicos y evaluación de proveedores.", isCustom: false, active: true },
+  { id: 4, name: "Compras", description: "Gestión de órdenes de compra y directorio de proveedores.", isCustom: false, active: true },
+  { id: 5, name: "Auxiliar", description: "Recepción técnica y registro de datos en bodega.", isCustom: false, active: true },
+  { id: 6, name: "Proveedor", description: "Acceso externo restringido (solo puede ver y responder sus propias evaluaciones/CAPA).", isCustom: false, active: true },
+];
 
 export default function RolesPage() {
   return (
@@ -13,10 +24,57 @@ export default function RolesPage() {
             Administra los roles, accesos y privilegios de los usuarios del sistema.
           </p>
         </div>
+        <Button className="bg-[#2E3192] hover:bg-[#2E3192]/90 flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          Crear Nuevo Rol
+        </Button>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
-        <p>El módulo de gestión de roles estará disponible en la próxima actualización.</p>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-xs">
+              <tr>
+                <th className="px-6 py-4">Rol de Sistema</th>
+                <th className="px-6 py-4">Descripción</th>
+                <th className="px-6 py-4">Tipo</th>
+                <th className="px-6 py-4">Estado</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {mockRoles.map((role) => (
+                <tr key={role.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-6 py-4 font-bold text-[#0F172A]">{role.name}</td>
+                  <td className="px-6 py-4 text-slate-500 max-w-md">{role.description}</td>
+                  <td className="px-6 py-4">
+                    {role.isCustom ? (
+                      <Badge variant="outline" className="text-slate-600 bg-slate-100 border-slate-200">Personalizado</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[#0EA5E9] bg-[#0EA5E9]/10 border-[#0EA5E9]/20">Por Defecto</Badge>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    {role.active ? (
+                      <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
+                        <CheckCircle2 className="w-4 h-4" /> Activo
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-rose-600 text-xs font-bold">
+                        <XCircle className="w-4 h-4" /> Inactivo
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="text-slate-400 hover:text-[#0EA5E9] transition-colors p-2 rounded-lg hover:bg-[#0EA5E9]/10">
+                      <MoreHorizontal className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -140,7 +140,11 @@ model CapaTicket {
 
 enum RolUsuario {
   ADMIN
+  DIRECTOR
+  GERENCIA
+  COMPRAS
   PROVEEDOR
+  AUXILIAR
 }
 
 model Usuario {
