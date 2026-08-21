@@ -174,7 +174,11 @@ export async function deleteProveedor(id: number) {
 }
 
 export async function importarProveedoresCSV(csvText: string) {
-  const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
+  let lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
+  if (lines.length > 0 && lines[0].toLowerCase().startsWith("sep=")) {
+    lines.shift(); // Ignore Excel's sep directive
+  }
+  
   if (lines.length <= 1) throw new Error("El archivo no tiene datos válidos.");
 
   const delimiter = lines[0].includes(';') ? ';' : ',';
