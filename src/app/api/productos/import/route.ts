@@ -29,6 +29,8 @@ export async function POST(req: Request) {
       const nombre = values[1];
       const presentacion = values[2] || null;
       const precioBase = parseFloat(values[3] || '0') || 0;
+      const fechaVencimientoRaw = values[4];
+      const fechaVencimiento = fechaVencimientoRaw ? new Date(fechaVencimientoRaw) : null;
 
       if (!codigo || !nombre) {
         omitidos++;
@@ -42,12 +44,14 @@ export async function POST(req: Request) {
             nombre,
             presentacion,
             precioBase,
+            fechaVencimiento,
           },
           create: {
             codigo,
             nombre,
             presentacion,
             precioBase,
+            fechaVencimiento,
           }
         });
         creados++;
