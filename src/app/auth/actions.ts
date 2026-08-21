@@ -5,7 +5,7 @@ import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
 export async function login(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim();
   const password = formData.get("password") as string;
 
   if (!email || !password) {
@@ -18,10 +18,12 @@ export async function login(formData: FormData) {
     });
 
     if (!user) {
+      console.log("User not found:", email);
       return { error: "Credenciales inválidas." };
     }
 
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    console.log("Is valid password?", isValidPassword, "for hash:", user.passwordHash);
 
     if (!isValidPassword) {
       return { error: "Credenciales inválidas." };
@@ -38,6 +40,6 @@ export async function login(formData: FormData) {
 }
 
 export async function logout() {
-  deleteSession();
+  await deleteSession();
   redirect("/login");
 }
