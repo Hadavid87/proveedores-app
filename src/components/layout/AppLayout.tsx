@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, ShoppingCart, Package, Settings, HelpCircle, Menu, X, Bell, Search, Activity, BarChart, Pill, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { logout } from "@/app/auth/actions";
 
 type NavItem = {
   href?: string;
@@ -188,11 +189,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <button className="hover:text-[#0F172A] transition-colors">
               <Settings className="w-[18px] h-[18px]" />
             </button>
-            <form action={async () => {
-              "use server";
-              const { logout } = await import("@/app/auth/actions");
-              await logout();
-            }}>
+            <form action={logout}>
               <button type="submit" className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden ml-2 ring-1 ring-slate-100 hover:ring-rose-500 transition-all group" title="Cerrar sesión">
                 <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
               </button>
