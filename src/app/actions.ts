@@ -173,6 +173,61 @@ export async function deleteProveedor(id: number) {
   return { success: true };
 }
 
+export async function importarProveedoresCSV(csvText: string) {
+  const lines = csvText.split('\n').map(l => l.trim()).filter(l => l);
+  if (lines.length <= 1) throw new Error("El archivo no tiene datos válidos.");
+
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  let creados = 0;
+  let omitidos = 0;
+
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',').map(v => v.trim());
+    if (values.length < 2) continue;
+
+    // Default column order based on template: nit, razonSocial, emailLogistica, kamNombre, condicionPago
+    const nit = values[0];
+    const razonSocial = values[1];
+    const emailLogistica = values[2] || "sin_correo@ejemplo.com";
+    const kamNombre = values[3] || null;
+    const condicionPagoRaw = values[4]?.toUpperCase();
+    const condicionPago = (condicionPagoRaw === "CONTADO" || condicionPagoRaw === "CREDITO") ? condicionPagoRaw : "CONTADO";
+
+    if (!nit || !razonSocial) {
+      omitidos++;
+      continue;
+    }
+
+    try {
+      await prisma.proveedor.upsert({
+        where: { nit },
+        update: {
+          razonSocial,
+          emailLogistica,
+          kamNombre,
+          condicionPago: condicionPago as any,
+        },
+        create: {
+          nit,
+          razonSocial,
+          emailLogistica,
+          kamNombre,
+          condicionPago: condicionPago as any,
+          estado: "ACTIVO",
+          puntajeActual: 5.00
+        }
+      });
+      creados++;
+    } catch (error) {
+      console.error(`Error importando proveedor ${nit}:`, error);
+      omitidos++;
+    }
+  }
+
+  revalidatePath("/proveedores");
+  return { creados, omitidos };
+}
+
 export async function getProductos() {
   const data = await prisma.producto.findMany({
     include: {

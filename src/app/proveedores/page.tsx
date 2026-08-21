@@ -10,7 +10,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 import { initialClassifications } from "@/lib/mockClasificaciones";
-import { getProveedores, createProveedor, updateProveedor, deleteProveedor } from "../actions";
+import { getProveedores, createProveedor, updateProveedor, deleteProveedor, importarProveedoresCSV } from "../actions";
 
 const defaultDocs = {
   docFormularioRegistro: "OK", docRut: "OK", docCamaraComercio: "OK", docCertificacionBancaria: "OK",
@@ -34,6 +34,26 @@ export default function ProveedoresPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterClasificacionId, setFilterClasificacionId] = useState<number | "">("");
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleCsvUpload = async () => {
+    if (!csvFile) return;
+    setIsUploading(true);
+    try {
+      const text = await csvFile.text();
+      const res = await importarProveedoresCSV(text);
+      alert(`Importación completada:\n- ${res.creados} procesados correctamente\n- ${res.omitidos} omitidos por error`);
+      setIsCsvModalOpen(false);
+      setCsvFile(null);
+      await loadProveedores();
+    } catch (e: any) {
+      alert("Error al importar CSV: " + e.message);
+    }
+    setIsUploading(false);
+  };
 
   const loadProveedores = async () => {
     setIsLoading(true);
@@ -208,6 +228,10 @@ export default function ProveedoresPage() {
               <option key={c.id} value={c.id}>{c.nombreCorto}</option>
             ))}
           </select>
+          <Button onClick={() => setIsCsvModalOpen(true)} variant="outline" className="bg-white border-slate-200 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-semibold shadow-sm rounded-lg h-10">
+            <Upload className="w-4 h-4 mr-2" />
+            Importar CSV
+          </Button>
           <Button onClick={handleOpenCreate} className="bg-[#0F172A] hover:bg-[#0F172A]/90 text-white font-semibold shadow-sm rounded-lg h-10 px-5">
             <Plus className="w-4 h-4 mr-2" />
             Nuevo Proveedor
@@ -524,6 +548,44 @@ export default function ProveedoresPage() {
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
             <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90" onClick={handleSave}>
               {modalMode === "CREATE" ? "Crear Proveedor" : "Guardar Cambios"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Modal */}
+      <Dialog open={isCsvModalOpen} onOpenChange={setIsCsvModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="font-heading font-bold text-[#0F172A]">Importación Masiva (CSV)</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600 border border-slate-100">
+              <p className="font-bold mb-2 text-slate-700">Instrucciones:</p>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>Descarga la plantilla CSV y ábrela en Excel.</li>
+                <li>Llena las filas con los datos de los proveedores.</li>
+                <li>Asegúrate de guardarlo como formato <strong>Valores separados por comas (.csv)</strong>.</li>
+                <li>Si un NIT ya existe, su información será actualizada.</li>
+              </ol>
+              <div className="mt-4">
+                <a href="/plantilla_proveedores.csv" download className="inline-flex items-center text-[#0EA5E9] font-bold hover:underline">
+                  <Download className="w-4 h-4 mr-1" /> Descargar Plantilla
+                </a>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[#0F172A]">Subir archivo lleno (.csv)</label>
+              <div className="flex items-center gap-2">
+                <Input type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files?.[0] || null)} className="cursor-pointer" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsCsvModalOpen(false); setCsvFile(null); }}>Cancelar</Button>
+            <Button onClick={handleCsvUpload} disabled={!csvFile || isUploading} className="bg-[#0EA5E9] hover:bg-[#0284c7] text-white">
+              {isUploading ? "Importando..." : "Importar Datos"}
             </Button>
           </DialogFooter>
         </DialogContent>
