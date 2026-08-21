@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         });
         creados++;
       } catch (error) {
-        console.error(\Error importando medicamento \:\, error);
+        console.error(`Error importando medicamento ${codigo}:`, error);
         omitidos++;
       }
     }
