@@ -88,7 +88,7 @@ export default async function AdminCapa() {
                 <td colSpan={5} className="px-6 py-12 text-center text-slate-500">No hay tickets CAPA registrados.</td>
               </tr>
             ) : (
-              tickets.map(ticket => (
+              tickets.map((ticket: any) => (
                 <tr key={ticket.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4 font-bold text-slate-800">
                     CAPA-{ticket.id.toString().padStart(4, '0')}
