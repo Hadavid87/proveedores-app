@@ -26,6 +26,7 @@ export async function createSession(user: any) {
     email: user.email,
     nombre: user.nombre,
     rol: user.rol,
+    proveedorId: user.proveedorId,
   };
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
   const session = await encrypt({ user: sessionData, expires });

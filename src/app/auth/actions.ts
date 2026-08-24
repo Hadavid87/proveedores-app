@@ -35,9 +35,16 @@ export async function login(formData: FormData) {
       email: user.email,
       nombre: user.nombre,
       rol: user.rol.nombre,
+      proveedorId: user.proveedorId,
     });
     
+    if (user.rol.nombre === 'PROVEEDOR') {
+      redirect("/portal");
+    }
   } catch (error) {
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
     console.error("Login error:", error);
     return { error: "Hubo un problema al iniciar sesión. Intenta nuevamente." };
   }

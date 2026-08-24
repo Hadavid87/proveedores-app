@@ -13,7 +13,7 @@ type NavItem = {
   subItems?: { href: string; label: string }[];
 };
 
-const navItems: NavItem[] = [
+const defaultNavItems: NavItem[] = [
   { href: "/", icon: LayoutDashboard, label: "Tablero" },
   { 
     icon: Users, 
@@ -47,10 +47,18 @@ const navItems: NavItem[] = [
   },
 ];
 
+const providerNavItems: NavItem[] = [
+  { href: "/portal", icon: LayoutDashboard, label: "Mi Tablero" },
+  { href: "/portal/documentos", icon: Activity, label: "Mis Documentos" },
+  { href: "/portal/ordenes", icon: ShoppingCart, label: "Mis Órdenes" },
+];
+
 export function AppLayout({ children, user }: { children: React.ReactNode, user?: any }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const pathname = usePathname() || "/";
+  
+  const navItems = user?.rol === 'PROVEEDOR' ? providerNavItems : defaultNavItems;
   
   // By default, open the group if we are inside one of its subItems
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});

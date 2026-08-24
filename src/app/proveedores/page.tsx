@@ -329,6 +329,21 @@ export default function ProveedoresPage() {
                   <Building2 className="w-5 h-5" />
                 </div>
                 <div className="flex gap-2">
+                  <button onClick={async () => {
+                    const res = await fetch(`/api/proveedores/acceso`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ proveedorId: selectedProv.id, nit: selectedProv.nit, email: selectedProv.emailLogistica, nombre: selectedProv.razonSocial })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      alert(`Acceso generado exitosamente. Se ha creado la cuenta con rol PROVEEDOR.\n\nUsuario: ${data.email}\nContraseña Temporal: ${data.password}`);
+                    } else {
+                      alert("Error al generar acceso: " + data.error);
+                    }
+                  }} className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm transition-colors" title="Generar Acceso Portal">
+                    Acceso Portal
+                  </button>
                   <button onClick={handleOpenEdit} className="p-1.5 text-slate-400 hover:text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-md transition-colors" title="Editar">
                     <Edit2 className="w-4 h-4" />
                   </button>

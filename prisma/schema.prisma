@@ -18,8 +18,23 @@ model Proveedor {
   
   productos       ProductoProveedor[]
   ordenesCompra   OrdenCompra[]
+  usuarios        Usuario[]
+  documentos      DocumentoProveedor[]
 
   @@map("proveedores")
+}
+
+model DocumentoProveedor {
+  id            Int      @id @default(autoincrement())
+  proveedorId   Int      @map("proveedor_id")
+  nombreArchivo String   @map("nombre_archivo")
+  tipoDocumento String   @map("tipo_documento")
+  urlDescarga   String   @map("url_descarga")
+  fechaSubida   DateTime @default(now()) @map("fecha_subida")
+  
+  proveedor     Proveedor @relation(fields: [proveedorId], references: [id], onDelete: Cascade)
+  
+  @@map("documentos_proveedor")
 }
 
 enum CondicionPago {
@@ -157,7 +172,9 @@ model Usuario {
   passwordHash String     @map("password_hash")
   nombre       String
   rolId        Int        @map("rol_id")
+  proveedorId  Int?       @map("proveedor_id")
   rol          Rol        @relation(fields: [rolId], references: [id])
+  proveedor    Proveedor? @relation(fields: [proveedorId], references: [id], onDelete: SetNull)
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 
