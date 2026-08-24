@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { Activity, Clock, FileText, AlertTriangle, Search, Plus } from 'lucide-react';
 import { NuevaCapaBoton } from './NuevaCapaBoton';
+import { RevisarCapaBoton } from './RevisarCapaBoton';
 
 export default async function AdminCapa() {
   const session = await getSession();
@@ -11,10 +12,11 @@ export default async function AdminCapa() {
     redirect('/portal');
   }
 
-  const tickets = await prisma.capaTicket.findMany({
+  const ticketsRaw = await prisma.capaTicket.findMany({
     include: { proveedor: true },
     orderBy: { fechaGeneracion: 'desc' }
   });
+  const tickets = JSON.parse(JSON.stringify(ticketsRaw));
 
   const proveedoresRaw = await prisma.proveedor.findMany({
     where: { estado: 'ACTIVO' }
@@ -24,13 +26,22 @@ export default async function AdminCapa() {
   const formatearFecha = (fecha: Date) => {
     return new Intl.DateTimeFormat('es-CO', { 
       day: '2-digit', month: 'short', year: 'numeric' 
-    }).format(fecha);
+    }).format(new Date(fecha));
   };
 
   async function crearTicket(provId: number, desc: string) {
     'use server';
     await prisma.capaTicket.create({
       data: { proveedorId: provId, descripcion: desc }
+    });
+    revalidatePath('/calidad');
+  }
+
+  async function actualizarEstado(id: number, estado: string) {
+    'use server';
+    await prisma.capaTicket.update({
+      where: { id },
+      data: { estado }
     });
     revalidatePath('/calidad');
   }
@@ -94,9 +105,7 @@ export default async function AdminCapa() {
                     {ticket.estado === 'CERRADO' && <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md border border-emerald-100">Cerrado</span>}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-[#0EA5E9] hover:text-[#0284c7] font-bold text-xs bg-[#0EA5E9]/10 px-3 py-1.5 rounded-md transition-colors">
-                      Revisar
-                    </button>
+                    <RevisarCapaBoton ticket={ticket} updateAction={actualizarEstado} />
                   </td>
                 </tr>
               ))
