@@ -14,11 +14,16 @@ export default async function DocumentosPortal() {
   // En un caso real, leeríamos los documentos desde \prisma.documentoProveedor\
   // Para la demo, simularemos el estado
   
+  // Documentos de Cumplimiento Requeridos
   const documentos = [
-    { id: 1, tipo: 'Certificado de Calidad (ISO)', estado: 'CARGADO', fecha: '2026-08-15' },
-    { id: 2, tipo: 'Ficha Técnica de Productos', estado: 'CARGADO', fecha: '2026-08-20' },
-    { id: 3, tipo: 'Certificado de Análisis (CoA)', estado: 'PENDIENTE', fecha: null },
-    { id: 4, tipo: 'Cámara de Comercio Actualizada', estado: 'VENCIDO', fecha: '2025-01-10' },
+    { id: 1, tipo: 'Formulario de Registro', estado: 'CARGADO', fecha: '2024-01-15' },
+    { id: 2, tipo: 'RUT', estado: 'CARGADO', fecha: '2024-01-15' },
+    { id: 3, tipo: 'Cámara de Comercio', estado: 'CARGADO', fecha: '2024-01-15' },
+    { id: 4, tipo: 'Certificación Bancaria', estado: 'CARGADO', fecha: '2024-01-15' },
+    { id: 5, tipo: 'Cédula Representante Legal', estado: 'CARGADO', fecha: '2024-01-15' },
+    { id: 6, tipo: 'Habilitación', estado: 'N/A', fecha: null },
+    { id: 7, tipo: 'Verificación LAFT', estado: 'CARGADO', fecha: '2024-01-15' },
+    { id: 8, tipo: 'Solicitud Actualización', estado: 'PENDIENTE', fecha: null },
   ];
 
   return (
@@ -62,6 +67,11 @@ export default async function DocumentosPortal() {
                 {doc.estado === 'PENDIENTE' && (
                   <span className="flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-100">
                     <AlertCircle className="w-4 h-4" /> Pendiente
+                  </span>
+                )}
+                {doc.estado === 'N/A' && (
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                    <AlertCircle className="w-4 h-4" /> No Aplica
                   </span>
                 )}
                 
