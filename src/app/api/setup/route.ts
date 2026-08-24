@@ -26,12 +26,12 @@ export async function GET() {
       await prisma.usuario.upsert({
         where: { email: 'admin@oncocenter.com' },
         update: {
-          passwordHash: '$2a$10$w879/ZzG1w9O28g2eH6J8.4H.110y6c5U8/41vK6U1y50E.1y40f6' // admin123
+          passwordHash: '$2b$10$of3LxTJTBPp/z18W8SfVweLbKy3uZCfkw3sq.HLys87IehbDVqCZa' // admin123
         },
         create: {
           email: 'admin@oncocenter.com',
           nombre: 'Administrador Global',
-          passwordHash: '$2a$10$w879/ZzG1w9O28g2eH6J8.4H.110y6c5U8/41vK6U1y50E.1y40f6', // admin123
+          passwordHash: '$2b$10$of3LxTJTBPp/z18W8SfVweLbKy3uZCfkw3sq.HLys87IehbDVqCZa', // admin123
           rolId: adminRole.id,
         },
       });
