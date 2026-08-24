@@ -1,4 +1,4 @@
-﻿import { getSession } from '@/lib/session';
+import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { FileText, CheckCircle2, Upload, AlertCircle } from 'lucide-react';
@@ -68,10 +68,7 @@ export default async function DocumentosPortal() {
                 <label className="cursor-pointer bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-[#0EA5E9] transition-colors px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
                   <Upload className="w-4 h-4" />
                   {doc.estado === 'CARGADO' ? 'Actualizar' : 'Subir Archivo'}
-                  <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={(e) => {
-                     // En una implementación real, aquí se subiría el archivo al servidor.
-                     alert('¡Archivo seleccionado con éxito! (Simulación de carga)');
-                  }} />
+                  <input type="file" className="hidden" accept=".pdf,.doc,.docx" />
                 </label>
               </div>
             </div>
