@@ -1,7 +1,9 @@
-﻿import { getSession } from '@/lib/session';
+import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 import { Activity, Clock, FileText, AlertTriangle, Search, Plus } from 'lucide-react';
+import { NuevaCapaBoton } from './NuevaCapaBoton';
 
 export default async function AdminCapa() {
   const session = await getSession();
@@ -14,11 +16,23 @@ export default async function AdminCapa() {
     orderBy: { fechaGeneracion: 'desc' }
   });
 
+  const proveedores = await prisma.proveedor.findMany({
+    where: { estado: 'ACTIVO' }
+  });
+
   const formatearFecha = (fecha: Date) => {
     return new Intl.DateTimeFormat('es-CO', { 
       day: '2-digit', month: 'short', year: 'numeric' 
     }).format(fecha);
   };
+
+  async function crearTicket(provId: number, desc: string) {
+    'use server';
+    await prisma.capaTicket.create({
+      data: { proveedorId: provId, descripcion: desc }
+    });
+    revalidatePath('/calidad');
+  }
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto animate-in fade-in duration-300">
@@ -30,10 +44,7 @@ export default async function AdminCapa() {
           </p>
         </div>
         <div className="flex gap-3 items-center">
-          <button className="bg-[#0F172A] hover:bg-[#0F172A]/90 text-white font-semibold shadow-sm rounded-lg h-10 px-5 flex items-center">
-            <Plus className="w-4 h-4 mr-2" />
-            Nueva No Conformidad
-          </button>
+          <NuevaCapaBoton proveedores={proveedores} createAction={crearTicket} />
         </div>
       </div>
 
