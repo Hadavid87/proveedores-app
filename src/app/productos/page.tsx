@@ -8,14 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Search, Plus, Edit2, Pill, Trash2, Download, Filter, Calendar, FileText, Loader2, Upload } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-const initialProveedores = [
-  { id: 1, razonSocial: "PharmaCore Andina S.A." },
-  { id: 2, razonSocial: "OncoMeds Distribución SAS" },
-  { id: 3, razonSocial: "BioTech Solutions Ltd." },
-];
+import { getProveedores } from "../actions";
 
 export default function ProductosPage() {
+  const [allProveedores, setAllProveedores] = useState<any[]>([]);
   const [productos, setProductos] = useState<any[]>([]);
   const [selectedProd, setSelectedProd] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,6 +75,9 @@ export default function ProductosPage() {
     setIsLoading(true);
     try {
       const res = await fetch('/api/productos');
+      const provData = await getProveedores();
+      setAllProveedores(provData);
+      
       if (res.ok) {
         const data = await res.json();
         // Transform DB data to frontend format
@@ -217,7 +216,7 @@ export default function ProductosPage() {
     doc.setFont("helvetica", "bold");
     doc.text("Catálogo de Medicamentos", imgData ? 30 : 23, 23);
     
-    const provName = filterProvId === "ALL" ? "General" : initialProveedores.find(p => p.id === filterProvId)?.razonSocial;
+    const provName = filterProvId === "ALL" ? "General" : allProveedores.find(p => p.id === filterProvId)?.razonSocial;
 
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
@@ -229,7 +228,7 @@ export default function ProductosPage() {
     doc.line(14, 35, 196, 35);
     
     const tableData = filteredProductos.map(p => {
-      const provs = p.proveedores.map((id: number) => initialProveedores.find(pr => pr.id === id)?.razonSocial).filter(Boolean).join(", ");
+      const provs = p.proveedores.map((id: number) => allProveedores.find(pr => pr.id === id)?.razonSocial).filter(Boolean).join(", ");
       return [
         p.codigo,
         p.nombre,
@@ -304,7 +303,7 @@ export default function ProductosPage() {
                   onChange={(e) => setFilterProvId(e.target.value === "ALL" ? "ALL" : Number(e.target.value))}
                 >
                   <option value="ALL">Todos los proveedores</option>
-                  {initialProveedores.map(p => <option key={p.id} value={p.id}>{p.razonSocial}</option>)}
+                  {allProveedores.map(p => <option key={p.id} value={p.id}>{p.razonSocial}</option>)}
                 </select>
               </div>
             </div>
@@ -425,7 +424,7 @@ export default function ProductosPage() {
                 </h3>
                 <div className="space-y-2">
                   {selectedProd.proveedores.map((provId: number) => {
-                    const prov = initialProveedores.find(p => p.id === provId);
+                    const prov = allProveedores.find(p => p.id === provId);
                     return prov ? (
                       <div key={provId} className="p-3 bg-[#F8FAFC] border border-slate-100 rounded-lg flex items-center justify-between">
                         <span className="text-sm font-semibold text-[#0F172A]">{prov.razonSocial}</span>
@@ -519,9 +518,9 @@ export default function ProductosPage() {
               </div>
             </div>
             <div className="space-y-2 pt-2">
-              <label className="text-xs font-bold text-[#0EA5E9]">Proveedores Autorizados</label>
+              <label className="text-xs font-bold text-[#0EA5E9]">Proveedores Autorizados (Requisitos Cumplidos)</label>
               <div className="p-3 border border-slate-200 rounded-lg max-h-32 overflow-y-auto space-y-2 bg-[#F8FAFC]">
-                {initialProveedores.map(prov => (
+                {allProveedores.filter(p => p.estado === 'ACTIVO' && p.puntajeActual >= 3.5).map(prov => (
                   <label key={prov.id} className="flex items-center space-x-2 cursor-pointer">
                     <input 
                       type="checkbox" 
