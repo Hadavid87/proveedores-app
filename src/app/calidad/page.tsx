@@ -16,9 +16,10 @@ export default async function AdminCapa() {
     orderBy: { fechaGeneracion: 'desc' }
   });
 
-  const proveedores = await prisma.proveedor.findMany({
+  const proveedoresRaw = await prisma.proveedor.findMany({
     where: { estado: 'ACTIVO' }
   });
+  const proveedores = JSON.parse(JSON.stringify(proveedoresRaw));
 
   const formatearFecha = (fecha: Date) => {
     return new Intl.DateTimeFormat('es-CO', { 
