@@ -20,6 +20,7 @@ model Proveedor {
   ordenesCompra   OrdenCompra[]
   usuarios        Usuario[]
   documentos      DocumentoProveedor[]
+  capaTickets     CapaTicket[]
 
   @@map("proveedores")
 }
@@ -149,6 +150,8 @@ model CapaTicket {
   fechaGeneracion DateTime @default(now()) @map("fecha_generacion")
   descripcion String   @db.Text
   estado      String   @default("ABIERTO")
+
+  proveedor   Proveedor @relation(fields: [proveedorId], references: [id])
 
   @@map("capa_tickets")
 }
